@@ -28,3 +28,9 @@ def test_agent_detect_negative():
     red = Agent(x=50, y=0, speed=1, heading=0, team="red", detection_range=100)
     detected = blue.detect([red])
     assert len(detected) == 0
+
+def test_agent_move_towards():
+    blue = Agent(x=0, y=0, speed=1, heading=0, team="blue", detection_range=10)
+    red = Agent(x=50, y=0, speed=1, heading=0, team="red", detection_range=100)
+    blue.move_towards(red, 1)
+    assert np.isclose(blue.x, 1.0)

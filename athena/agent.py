@@ -22,5 +22,10 @@ class Agent:
                 if distance <= self.detection_range:
                     detected.append(agent)
         return detected
+    
+    def move_towards(self, target, dt):
+        target_angle = np.arctan2((target.y - self.y), (target.x - self.x))
+        self.heading = target_angle
+        self.update(dt)
 
         

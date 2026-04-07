@@ -5,7 +5,7 @@ import numpy as np
 
 def test_agent_update():
     agent = Agent(x=0, y=0, speed=1, heading=0, team="blue", detection_range=100, engagement_range=20)
-    agent.update(dt=1)
+    agent.update(dt=1, width=1, height=1)
     assert np.isclose(agent.x, 1.0)
     assert np.isclose(agent.y, 0.0)
     
@@ -33,7 +33,7 @@ def test_agent_detect_negative():
 def test_agent_move_towards():
     blue = Agent(x=0, y=0, speed=1, heading=0, team="blue", detection_range=10, engagement_range=20)
     red = Agent(x=50, y=0, speed=1, heading=0, team="red", detection_range=100, engagement_range=20)
-    blue.move_towards(red, 1)
+    blue.move_towards(red, 1, 1, 1)
     assert np.isclose(blue.x, 1.0)
 
 def test_scenario_runs():

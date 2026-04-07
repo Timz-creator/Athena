@@ -21,7 +21,7 @@ class ScenarioRunner:
                 if agent.alive:
                     detected = agent.detect(self.world.agents)
                     if detected:
-                        agent.move_towards(detected[0], self.world.dt)
+                        agent.move_towards(detected[0], self.world.dt, self.world.width, self.world.height)
                     agent.engage(self.world.agents)
                 self.world.step()
 

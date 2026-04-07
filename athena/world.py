@@ -14,5 +14,5 @@ class World:
     def step(self):
         for agent in self.agents:
             if agent.alive:
-                agent.update(self.dt)
+                agent.update(self.dt, self.width, self.height)
         self.time += self.dt

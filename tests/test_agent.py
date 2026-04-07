@@ -1,5 +1,6 @@
 from athena.agent import Agent
 from athena.world import World
+from athena.scenario import ScenarioRunner
 import numpy as np
 
 def test_agent_update():
@@ -34,3 +35,11 @@ def test_agent_move_towards():
     red = Agent(x=50, y=0, speed=1, heading=0, team="red", detection_range=100)
     blue.move_towards(red, 1)
     assert np.isclose(blue.x, 1.0)
+
+def test_scenario_runs():
+    runner = ScenarioRunner(width=1000, height=1000, n_agents_per_team=3)
+    runner.run(steps=10)
+    assert runner.world.time > 0
+    
+
+

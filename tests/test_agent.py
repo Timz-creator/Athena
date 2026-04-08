@@ -1,6 +1,7 @@
 from athena.agent import Agent
 from athena.world import World
 from athena.scenario import ScenarioRunner
+from athena.monte_carlo import MonteCarlo
 import numpy as np
 
 def test_agent_update():
@@ -46,6 +47,14 @@ def test_agent_engage():
     red = Agent(x=50, y=0, speed=1, heading=0, team="red", detection_range=100, engagement_range=100)
     red.engage([blue])
     assert blue.alive == False
+
+def test_monte_carlo_runs():
+    mc = MonteCarlo(width=200, height=200, n_agents_per_team=3, n_runs=10)
+    results = mc.run(steps=200)
+    assert len(results) == 10
+    assert all("winner" in r for r in results)
+    
+
 
 
 

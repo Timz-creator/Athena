@@ -24,6 +24,21 @@ class ScenarioRunner:
                         agent.move_towards(detected[0], self.world.dt, self.world.width, self.world.height)
                     agent.engage(self.world.agents)
                 self.world.step()
+    
+    def get_results(self):
+        blue_survived = sum(1 for agent in self.world.agents if agent.team == "blue" and agent.alive)
+        red_survived = sum(1 for agent in self.world.agents if agent.team == "red" and agent.alive)
+        if blue_survived > red_survived:
+            winner = "blue"
+        elif red_survived > blue_survived:
+            winner = "red"
+        else:
+            winner = "draw"
+        return {
+            "winner": winner,
+            "blue_survived": blue_survived,
+            "red_survived": red_survived
+        }
 
 
 

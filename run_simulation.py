@@ -1,13 +1,11 @@
-from athena.monte_carlo import MonteCarlo
+from athena.doe import DesignOfExperiments
 
-mc = MonteCarlo(width=200, height=200, n_agents_per_team=3, n_runs=100)
-results = mc.run(steps=200)
+grid = [
+    {"detection_range": 50, "engagement_range": 20, "speed": 1, "n_agents_per_team": 3, "width": 200, "height": 200, "n_runs": 50, "steps": 200},
+    {"detection_range": 100, "engagement_range": 20, "speed": 1, "n_agents_per_team": 3, "width": 200, "height": 200, "n_runs": 50, "steps": 200},
+    {"detection_range": 150, "engagement_range": 20, "speed": 1, "n_agents_per_team": 3, "width": 200, "height": 200, "n_runs": 50, "steps": 200},
+]
 
-blue_wins = sum(1 for r in results if r["winner"] == "blue")
-red_wins = sum(1 for r in results if r["winner"] == "red")
-draws = sum(1 for r in results if r["winner"] == "draw")
-
-print(f"Runs: 100")
-print(f"Blue wins: {blue_wins}%")
-print(f"Red wins: {red_wins}%")
-print(f"Draws: {draws}%")
+doe = DesignOfExperiments(parameter_grid=grid)
+results = doe.run()
+print(results.to_string())

@@ -2,6 +2,7 @@ from athena.agent import Agent
 from athena.world import World
 from athena.scenario import ScenarioRunner
 from athena.monte_carlo import MonteCarlo
+from athena.doe import DesignOfExperiments
 import numpy as np
 
 def test_agent_update():
@@ -54,6 +55,18 @@ def test_monte_carlo_runs():
     assert len(results) == 10
     assert all("winner" in r for r in results)
     
+def test_doe():
+    grid = [
+    {"detection_range": 50, "engagement_range": 20, "speed": 1, "n_agents_per_team": 3, "width": 200, "height": 200, "n_runs": 10, "steps": 100},
+    {"detection_range": 100, "engagement_range": 20, "speed": 1, "n_agents_per_team": 3, "width": 200, "height": 200, "n_runs": 10, "steps": 100},
+]
+    doe = DesignOfExperiments(parameter_grid=grid)
+    results = doe.run()
+    assert results.shape[0] == 2
+    assert "blue_win_rate" in results.columns
+    
+
+
 
 
 

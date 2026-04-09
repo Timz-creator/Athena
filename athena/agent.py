@@ -1,7 +1,7 @@
 import numpy as np
 
 class Agent:
-    def __init__(self, x, y, speed, heading, team, detection_range, engagement_range):
+    def __init__(self, x, y, speed, heading, team, detection_range, engagement_range, kill_probability):
         self.x = x
         self.y = y
         self.speed = speed
@@ -10,6 +10,7 @@ class Agent:
         self.alive = True
         self.detection_range = detection_range
         self.engagement_range = engagement_range
+        self.kill_probability = kill_probability
     
     def update(self, dt, width, height):
         self.x += self.speed * np.cos(self.heading) * dt
@@ -36,6 +37,7 @@ class Agent:
             if agent.team != self.team and agent.alive:
                 distance = np.sqrt((agent.x - self.x)**2 + (agent.y - self.y)**2)
                 if distance <= self.engagement_range:
-                    agent.alive = False
+                    if np.random.random() < self.kill_probability:
+                        agent.alive = False
 
         

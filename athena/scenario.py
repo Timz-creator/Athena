@@ -23,7 +23,7 @@ class ScenarioRunner:
                     if detected:
                         agent.move_towards(detected[0], self.world.dt, self.world.width, self.world.height)
                     agent.engage(self.world.agents)
-                self.world.step()
+            self.world.step()
     
     def get_results(self):
         blue_survived = sum(1 for agent in self.world.agents if agent.team == "blue" and agent.alive)

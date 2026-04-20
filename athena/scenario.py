@@ -37,7 +37,18 @@ class ScenarioRunner:
         return {
             "winner": winner,
             "blue_survived": blue_survived,
-            "red_survived": red_survived
+            "red_survived": red_survived,
+            "agents" : [
+                {
+                    "x": agent.x,
+                    "y": agent.y,
+                    "team": agent.team,
+                    "alive": agent.alive,
+                    "heading": agent.heading
+                }
+                for agent in self.world.agents
+
+            ]
         }
 
 

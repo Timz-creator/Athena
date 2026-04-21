@@ -56,3 +56,13 @@ def debug():
         "agent_start_x": runner.world.agents[0].x,
         "agent_start_y": runner.world.agents[0].y
     }
+
+@app.get("/debug2")
+def debug2():
+    runner = ScenarioRunner(width=200, height=200, n_agents_per_team=2)
+    runner.run(steps=1)
+    return {
+        "world_width": runner.world.width,
+        "world_height": runner.world.height,
+        "agents": [{"x": a.x, "y": a.y, "team": a.team} for a in runner.world.agents]
+    }

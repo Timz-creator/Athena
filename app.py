@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from athena.scenario import ScenarioRunner
 from athena.monte_carlo import MonteCarlo
 from athena.doe import DesignOfExperiments
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, StrictInt
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -14,10 +14,10 @@ app.add_middleware(
 )
 
 class ScenarioRequest(BaseModel):
-    width: int = Field(gt=0, le=1000)
-    height: int = Field(gt=0, le=1000)
-    n_agents_per_team: int = Field(gt=0, le=20)
-    steps: int = Field(gt=0, le=1000)
+    width: StrictInt = Field(gt=0, le=1000)
+    height: StrictInt = Field(gt=0, le=1000)
+    n_agents_per_team: StrictInt = Field(gt=0, le=20)
+    steps: StrictInt = Field(gt=0, le=1000)
 
 @app.post("/scenario/run")
 def run_scenario(request: ScenarioRequest):
@@ -30,11 +30,11 @@ def run_scenario(request: ScenarioRequest):
     return runner.get_results()
 
 class MonteCarloRequest(BaseModel):
-    width: int =Field(gt=0, le=1000)
-    height: int =Field(gt=0, le=1000)
-    n_agents_per_team: int=Field(gt=0, le=20)
-    steps: int=Field(gt=0, le=1000)
-    n_runs: int=Field(gt=0, le=1000)
+    width: StrictInt = Field(gt=0, le=1000)
+    height: StrictInt = Field(gt=0, le=1000)
+    n_agents_per_team: StrictInt = Field(gt=0, le=20)
+    steps: StrictInt = Field(gt=0, le=1000)
+    n_runs: StrictInt = Field(gt=0, le=1000)
 
 @app.post("/monte-carlo/run")
 def run_monteCarlo(request: MonteCarloRequest):

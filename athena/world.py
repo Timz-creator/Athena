@@ -2,6 +2,8 @@ from athena.agent import Agent
 
 class World:
     def __init__(self, width, height, dt=0.1):
+        if isinstance(width, bool) or isinstance(height, bool):
+            raise ValueError("width and height must be numeric dimensions, not booleans")
         self.width = width 
         self.height = height 
         self.dt = dt

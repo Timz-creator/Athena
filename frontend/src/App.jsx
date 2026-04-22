@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Sidebar from "./components/Sidebar";
 import Canvas from "./components/Canvas";
+import Results from "./components/Results";
 
 function App() {
   const [params, setParams] = useState({
@@ -32,11 +33,14 @@ function App() {
         setParams={setParams}
         onExecute={handleExecute}
       />
-      <div className="ml-[280px] flex-grow">
-        <Canvas
-          agents={results ? results.agents : []}
-          worldSize={{ width: params.width, height: params.height }}
-        />
+      <div className="ml-[280px] flex-grow min-h-0 flex flex-col">
+        <div className="flex-grow min-h-0">
+          <Canvas
+            agents={results ? results.agents : []}
+            worldSize={{ width: params.width, height: params.height }}
+          />
+        </div>
+        <Results results={results} />
       </div>
     </div>
   );

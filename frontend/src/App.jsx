@@ -2,6 +2,7 @@ import { useState } from "react";
 import Sidebar from "./components/Sidebar";
 import Canvas from "./components/Canvas";
 import Results from "./components/Results";
+import Header from "./components/Header";
 
 function App() {
   const [params, setParams] = useState({
@@ -34,6 +35,7 @@ function App() {
         onExecute={handleExecute}
       />
       <div className="ml-[280px] flex-grow min-h-0 flex flex-col">
+        <Header />
         <div className="flex-grow min-h-0">
           <Canvas
             agents={results ? results.agents : []}

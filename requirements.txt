@@ -2,3 +2,5 @@ numpy
 pandas
 fastapi
 uvicorn
+httpx
+pytest-asyncio

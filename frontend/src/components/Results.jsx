@@ -18,7 +18,9 @@ function Results({ results }) {
           className="text-xs font-bold tracking-widest"
           style={{ color: winnerColour }}
         >
-          {hasResults ? `${results.winner.toUpperCase()} // VICTORY` : "PENDING"}
+          {hasResults
+            ? `${results.winner.toUpperCase()} // VICTORY`
+            : "PENDING"}
         </span>
       </div>
 

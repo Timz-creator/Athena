@@ -14,17 +14,31 @@ function App() {
 
   const [results, setResults] = useState(null);
 
-  const handleExecute = async () => {
-    const response = await fetch(
-      "https://athena-production-4518.up.railway.app/scenario/run",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(params),
-      },
+  const handleExecute = () => {
+    const ws = new WebSocket(
+      "wss://athena-production-4518.up.railway.app/scenario/stream",
     );
-    const data = await response.json();
-    setResults(data);
+
+    ws.onopen = () => {
+      ws.send(JSON.stringify(params));
+    };
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.done) {
+        setResults(data);
+      } else {
+        setResults((prev) => ({
+          ...prev,
+          agents: data.agents,
+          time: data.time,
+        }));
+      }
+    };
+
+    ws.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
   };
 
   return (

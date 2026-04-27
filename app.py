@@ -1,9 +1,11 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket
 from athena.scenario import ScenarioRunner
 from athena.monte_carlo import MonteCarlo
 from athena.doe import DesignOfExperiments
 from pydantic import BaseModel, Field, StrictInt
 from fastapi.middleware.cors import CORSMiddleware
+import asyncio
+import json
 
 app = FastAPI()
 app.add_middleware(
@@ -46,5 +48,45 @@ def run_monteCarlo(request: MonteCarloRequest):
     )
     results = mc.run(steps=request.steps)
     return results
+
+@app.websocket("/scenario/stream")
+async def stream_scenario(websocket: WebSocket):
+    await websocket.accept()
+    
+    data = await websocket.receive_json()
+    
+    runner = ScenarioRunner(
+        width=data["width"],
+        height=data["height"],
+        n_agents_per_team=data["n_agents_per_team"]
+    )
+    
+    for _ in range(data["steps"]):
+        for agent in runner.world.agents:
+            if agent.alive:
+                detected = agent.detect(runner.world.agents)
+                if detected:
+                    agent.move_towards(detected[0], runner.world.dt, runner.world.width, runner.world.height)
+                agent.engage(runner.world.agents)
+        runner.world.step()
+        
+        await websocket.send_json({
+            "time": runner.world.time,
+            "agents": [
+                {
+                    "x": agent.x,
+                    "y": agent.y,
+                    "team": agent.team,
+                    "alive": agent.alive,
+                    "heading": agent.heading
+                }
+                for agent in runner.world.agents
+            ]
+        })
+        
+        await asyncio.sleep(0.05)
+    
+    await websocket.send_json({"done": True, **runner.get_results()})
+    await websocket.close()
 
 

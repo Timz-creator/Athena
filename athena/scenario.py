@@ -1,6 +1,7 @@
 from athena import agent
 from athena.world import World
 from athena.agent import Agent 
+from athena.uav import UAV
 import numpy as np
 
 class ScenarioRunner:
@@ -10,8 +11,8 @@ class ScenarioRunner:
     
     def _setup_agents(self, n_agents_per_team):
         for _ in range(n_agents_per_team):
-            blue = Agent(x=np.random.uniform(0, self.world.width), y=np.random.uniform(0, self.world.height), speed=1, heading=0, team="blue", detection_range=100, engagement_range=20, kill_probability=0.1)
-            red = Agent(x=np.random.uniform(0, self.world.width), y=np.random.uniform(0, self.world.height), speed=1, heading=0, team="red", detection_range=100, engagement_range=20, kill_probability=0.1)
+            blue = UAV(x=np.random.uniform(0, self.world.width), y=np.random.uniform(0, self.world.height), team="blue")
+            red = UAV(x=np.random.uniform(0, self.world.width), y=np.random.uniform(0, self.world.height), team="red")
             self.world.add_agent(blue)
             self.world.add_agent(red)
     

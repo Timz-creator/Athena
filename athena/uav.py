@@ -14,4 +14,11 @@ class UAV(Agent):
         )
         self.altitude = 100
         self.fuel = 100.0
+    
+    def update(self, dt, width, height):
+        if self.fuel <= 0:
+            self.alive = False
+            return 
         
+        super().update(dt, width, height)
+        self.fuel -= 0.5 * dt

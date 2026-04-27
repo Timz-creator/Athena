@@ -23,3 +23,14 @@ def test_agent_move_towards():
     red = UAV(x=50, y=0, team="red")
     blue.move_towards(red, 1, 200, 200)
     assert blue.x > 0
+
+def test_uav_fuel_depletes():
+    uav = UAV(x=0, y=0, team="blue")
+    uav.update(dt=1, width=200, height=200)
+    assert uav.fuel < 100.0
+
+def test_uav_dies_when_fuel_empty():
+    uav = UAV(x=0, y=0, team="blue")
+    uav.fuel = 0
+    uav.update(dt=1, width=200, height=200)
+    assert uav.alive == False

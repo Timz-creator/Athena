@@ -8,6 +8,10 @@ function Results({ results }) {
         ? "#ff3333"
         : "#ffffff";
 
+  const winnerText = results?.winner
+    ? `${results.winner.toUpperCase()} // VICTORY`
+    : "PENDING";
+
   return (
     <div className="flex items-center gap-8 px-8 py-3 border-t border-[#1a1a1a] bg-[#0e0e0e]">
       <div className="flex flex-col">
@@ -18,9 +22,7 @@ function Results({ results }) {
           className="text-xs font-bold tracking-widest"
           style={{ color: winnerColour }}
         >
-          {hasResults
-            ? `${results.winner.toUpperCase()} // VICTORY`
-            : "PENDING"}
+          {winnerText}
         </span>
       </div>
 
@@ -31,7 +33,7 @@ function Results({ results }) {
           Blue Survived
         </span>
         <span className="text-xs font-bold text-[#00aaff] tracking-widest">
-          {hasResults ? results.blue_survived : "-"}
+          {hasResults ? (results.blue_survived ?? "-") : "-"}
         </span>
       </div>
 
@@ -42,7 +44,7 @@ function Results({ results }) {
           Red Survived
         </span>
         <span className="text-xs font-bold text-[#ff3333] tracking-widest">
-          {hasResults ? results.red_survived : "-"}
+          {hasResults ? (results.red_survived ?? "-") : "-"}
         </span>
       </div>
 
@@ -53,7 +55,7 @@ function Results({ results }) {
           Total Agents
         </span>
         <span className="text-xs font-bold text-white tracking-widest">
-          {hasResults ? results.agents.length : "-"}
+          {hasResults && results.agents ? results.agents.length : "-"}
         </span>
       </div>
     </div>

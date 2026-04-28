@@ -3,6 +3,7 @@ import Sidebar from "./components/Sidebar";
 import Canvas from "./components/Canvas";
 import Results from "./components/Results";
 import Header from "./components/Header";
+import Map from "./components/Map";
 
 function App() {
   const [params, setParams] = useState({
@@ -51,7 +52,7 @@ function App() {
       <div className="ml-[280px] flex-grow min-h-0 flex flex-col">
         <Header />
         <div className="flex-grow min-h-0">
-          <Canvas
+          <Map
             agents={results ? results.agents : []}
             worldSize={{ width: params.width, height: params.height }}
           />

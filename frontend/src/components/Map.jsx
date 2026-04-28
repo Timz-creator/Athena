@@ -129,10 +129,7 @@ function Map({ agents, worldSize, scenario, setupStep, onMapClick }) {
         type: "Feature",
         geometry: {
           type: "Point",
-          coordinates: [
-            (agent.x / worldSize.width) * 0.1 - 0.05,
-            51.5 + (agent.y / worldSize.height) * 0.1 - 0.05,
-          ],
+          coordinates: [agent.lng, agent.lat],
         },
         properties: { team: agent.team, heading: agent.heading },
       }));

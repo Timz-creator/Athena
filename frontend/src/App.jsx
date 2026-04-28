@@ -1,10 +1,15 @@
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import Sidebar from "./components/Sidebar";
 import Map from "./components/Map";
 import Results from "./components/Results";
 import Header from "./components/Header";
 import SetupIndicator from "./components/SetupIndicator";
 import Toast from "./components/Toast";
+import {
+  buildCoordinateSystem,
+  lngLatToWorld,
+  worldToLngLat,
+} from "./utils/coordinates";
 
 function App() {
   const [params, setParams] = useState({
@@ -53,6 +58,31 @@ function App() {
   const handleExecute = () => {
     if (setupStep < 4) return;
 
+    const bounds = buildCoordinateSystem(scenario);
+
+    const worldScenario = {
+      blueBase: lngLatToWorld(
+        scenario.blueBase.lng,
+        scenario.blueBase.lat,
+        bounds,
+      ),
+      redBase: lngLatToWorld(
+        scenario.redBase.lng,
+        scenario.redBase.lat,
+        bounds,
+      ),
+      blueAsset: lngLatToWorld(
+        scenario.blueAsset.lng,
+        scenario.blueAsset.lat,
+        bounds,
+      ),
+      redAsset: lngLatToWorld(
+        scenario.redAsset.lng,
+        scenario.redAsset.lat,
+        bounds,
+      ),
+    };
+
     const ws = new WebSocket(
       "wss://athena-production-4518.up.railway.app/scenario/stream",
     );
@@ -61,7 +91,9 @@ function App() {
       ws.send(
         JSON.stringify({
           ...params,
-          scenario,
+          scenario: worldScenario,
+          width: 200,
+          height: 200,
         }),
       );
     };
@@ -71,9 +103,15 @@ function App() {
       if (data.done) {
         setResults(data);
       } else {
+        // Convert agent positions back to lat/lng for map rendering
+        const agentsWithLngLat = data.agents.map((agent) => ({
+          ...agent,
+          lng: worldToLngLat(agent.x, agent.y, bounds).lng,
+          lat: worldToLngLat(agent.x, agent.y, bounds).lat,
+        }));
         setResults((prev) => ({
           ...prev,
-          agents: data.agents,
+          agents: agentsWithLngLat,
           time: data.time,
         }));
       }
@@ -81,7 +119,6 @@ function App() {
 
     ws.onerror = (error) => console.error("WebSocket error:", error);
   };
-
   return (
     <div className="flex h-screen w-screen bg-[#080d14] overflow-hidden">
       <Sidebar

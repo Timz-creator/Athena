@@ -19,13 +19,21 @@ class ScenarioRunner:
     
     def _setup_agents(self, n_agents_per_team, blue_base=None, red_base=None):
         n_attackers = max(1, int(n_agents_per_team * self.attacker_ratio))
-        n_interceptors = n_agents_per_team - n_attackers
 
         for i in range(n_agents_per_team):
-            blue_x = blue_base["x"] if blue_base else np.random.uniform(0, self.world.width)
-            blue_y = blue_base["y"] if blue_base else np.random.uniform(0, self.world.height)
-            red_x = red_base["x"] if red_base else np.random.uniform(0, self.world.width)
-            red_y = red_base["y"] if red_base else np.random.uniform(0, self.world.height)
+            # Add small random offset so UAVs don't spawn stacked
+            offset = 5
+
+            blue_x = (blue_base["x"] if blue_base else np.random.uniform(0, self.world.width)) + np.random.uniform(-offset, offset)
+            blue_y = (blue_base["y"] if blue_base else np.random.uniform(0, self.world.height)) + np.random.uniform(-offset, offset)
+            red_x = (red_base["x"] if red_base else np.random.uniform(0, self.world.width)) + np.random.uniform(-offset, offset)
+            red_y = (red_base["y"] if red_base else np.random.uniform(0, self.world.height)) + np.random.uniform(-offset, offset)
+
+            # Clamp to world bounds
+            blue_x = np.clip(blue_x, 0, self.world.width)
+            blue_y = np.clip(blue_y, 0, self.world.height)
+            red_x = np.clip(red_x, 0, self.world.width)
+            red_y = np.clip(red_y, 0, self.world.height)
 
             if i < n_attackers:
                 blue = AttackerUAV(x=blue_x, y=blue_y, team="blue", 

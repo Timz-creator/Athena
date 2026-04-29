@@ -8,7 +8,7 @@ class UAV(Agent):
             speed=3,
             heading=0,
             team=team,
-            detection_range=150,
+            detection_range=50,
             engagement_range=30,
             kill_probability=0.15
         )

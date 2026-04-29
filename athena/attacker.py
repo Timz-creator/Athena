@@ -22,3 +22,4 @@ class AttackerUAV(UAV):
         )
 
         self.move_towards(target, dt, width, height)
+        self.engage(agents)

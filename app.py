@@ -55,19 +55,26 @@ async def stream_scenario(websocket: WebSocket):
     
     data = await websocket.receive_json()
     
+    scenario = data.get("scenario", {})
+    n_agents = data.get("n_agents_per_team", 3)
+    steps = data.get("steps", 200)
+    attacker_ratio = data.get("attacker_ratio", 0.5)
+    
     runner = ScenarioRunner(
-        width=data["width"],
-        height=data["height"],
-        n_agents_per_team=data["n_agents_per_team"]
+        width=200,
+        height=200,
+        n_agents_per_team=n_agents,
+        blue_base=scenario.get("blueBase"),
+        red_base=scenario.get("redBase"),
+        blue_asset=scenario.get("blueAsset"),
+        red_asset=scenario.get("redAsset"),
+        attacker_ratio=attacker_ratio
     )
     
-    for _ in range(data["steps"]):
+    for _ in range(steps):
         for agent in runner.world.agents:
             if agent.alive:
-                detected = agent.detect(runner.world.agents)
-                if detected:
-                    agent.move_towards(detected[0], runner.world.dt, runner.world.width, runner.world.height)
-                agent.engage(runner.world.agents)
+                agent.act(runner.world.agents, runner.world.dt, runner.world.width, runner.world.height)
         runner.world.step()
         
         await websocket.send_json({

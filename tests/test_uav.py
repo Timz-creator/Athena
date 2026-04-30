@@ -3,7 +3,7 @@ import numpy as np
 
 def test_uav_has_correct_defaults():
     uav = UAV(x=0, y=0, team="blue")
-    assert uav.speed == 3
+    assert uav.speed == 10
     assert uav.detection_range == 50
     assert uav.engagement_range == 30
     assert uav.kill_probability == 0.15

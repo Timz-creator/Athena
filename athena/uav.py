@@ -5,7 +5,7 @@ class UAV(Agent):
         super().__init__(
             x=x,
             y=y,
-            speed=3,
+            speed=10,
             heading=0,
             team=team,
             detection_range=50,

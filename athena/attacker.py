@@ -13,12 +13,11 @@ class AttackerUAV(UAV):
             return
         super().update(dt, width, height)
 
-    def act(self, agents, dt, width, height):
+    def act(self, _agents, dt, width, height):
         if not self.alive or self.fuel <= 0:
             return
 
         if self.reached_target:
-            self.engage(agents)
             return
 
         target_x = self.target_asset["x"]
@@ -39,5 +38,3 @@ class AttackerUAV(UAV):
                     self.x = x
                     self.y = y
             self.move_towards(AssetTarget(target_x, target_y), dt, width, height)
-
-        self.engage(agents)

@@ -88,12 +88,23 @@ async def stream_scenario(websocket: WebSocket):
                     "heading": agent.heading
                 }
                 for agent in runner.world.agents
-            ]
+            ],
+            "assets": {
+                "blue": {
+                    "damage_taken": runner.blue_asset_obj.damage_taken if runner.blue_asset_obj else 0,
+                    "damage_percentage": runner.blue_asset_obj.damage_percentage if runner.blue_asset_obj else 0,
+                    "alive": runner.blue_asset_obj.alive if runner.blue_asset_obj else True
+                },
+                "red": {
+                    "damage_taken": runner.red_asset_obj.damage_taken if runner.red_asset_obj else 0,
+                    "damage_percentage": runner.red_asset_obj.damage_percentage if runner.red_asset_obj else 0,
+                    "alive": runner.red_asset_obj.alive if runner.red_asset_obj else True
+                }
+            }
         })
         
         await asyncio.sleep(0.05)
     
     await websocket.send_json({"done": True, **runner.get_results()})
     await websocket.close()
-
 

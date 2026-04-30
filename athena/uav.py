@@ -14,6 +14,7 @@ class UAV(Agent):
         )
         self.altitude = 100
         self.fuel = 100.0
+        self.deployment_cost = 500_000
     
     def update(self, dt, width, height):
         if self.fuel <= 0:

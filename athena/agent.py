@@ -30,7 +30,6 @@ class Agent:
     def move_towards(self, target, dt, width, height):
         target_angle = np.arctan2((target.y - self.y), (target.x - self.x))
         self.heading = target_angle
-        self.update(dt, width, height)
 
     def engage(self, agents):
         for agent in agents:

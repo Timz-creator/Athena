@@ -35,7 +35,8 @@ def test_agent_detect_negative():
 def test_agent_move_towards():
     blue = Agent(x=0, y=0, speed=1, heading=0, team="blue", detection_range=10, engagement_range=20, kill_probability=0.1)
     red = Agent(x=50, y=0, speed=1, heading=0, team="red", detection_range=100, engagement_range=20, kill_probability=0.1)
-    blue.move_towards(red, 1, 1, 1)
+    blue.move_towards(red, 1, 100, 100)
+    blue.update(1, 100, 100)
     assert np.isclose(blue.x, 1.0)
 
 def test_scenario_runs():

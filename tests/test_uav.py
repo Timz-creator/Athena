@@ -19,9 +19,10 @@ def test_uav_detect():
     
 
 def test_agent_move_towards():
-    blue =UAV(x=0, y=0, team="blue")
+    blue = UAV(x=0, y=0, team="blue")
     red = UAV(x=50, y=0, team="red")
     blue.move_towards(red, 1, 200, 200)
+    blue.update(1, 200, 200)
     assert blue.x > 0
 
 def test_uav_fuel_depletes():

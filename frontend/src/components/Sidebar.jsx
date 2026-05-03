@@ -1,4 +1,4 @@
-function Sidebar({ onExecute, params, setParams, children, scenarioReady }) {
+function Sidebar({ onExecute, params, setParams, children, scenarioReady, isRunning }) {
   return (
     <aside className="flex flex-col items-center py-4 w-[280px] h-screen fixed left-0 top-0 z-40 bg-[#0e0e0e] border-r border-[#1a1a1a]">
       {/* Brand Header */}
@@ -73,14 +73,16 @@ function Sidebar({ onExecute, params, setParams, children, scenarioReady }) {
       <div className="w-full px-6 pb-6">
         <button
           onClick={onExecute}
-          disabled={!scenarioReady}
+          disabled={!scenarioReady || isRunning}
           className={`w-full py-4 font-black text-xs tracking-[0.2em] uppercase transition-colors ${
-            scenarioReady
+            isRunning
+              ? "bg-[#005580] text-[#00aaff] cursor-not-allowed"
+              : scenarioReady
               ? "bg-[#00aaff] text-[#000000] hover:bg-[#33bbff]"
               : "bg-[#1a1a1a] text-[#bbc9cf] opacity-40 cursor-not-allowed"
           }`}
         >
-          {scenarioReady ? "EXECUTE" : "COMPLETE SETUP"}
+          {isRunning ? "RUNNING..." : scenarioReady ? "EXECUTE" : "COMPLETE SETUP"}
         </button>
       </div>
     </aside>

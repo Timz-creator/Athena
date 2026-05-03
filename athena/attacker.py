@@ -19,8 +19,8 @@ class AttackerUAV(UAV):
             return
 
         if self.reached_target:
-            if self.asset_obj:
-                self.asset_obj.take_damage(damage_per_tick=0.01)
+            if self.asset_obj and self.asset_obj.alive:
+                self.asset_obj.take_damage()
             return
 
         target_x = self.target_asset["x"]
@@ -34,8 +34,6 @@ class AttackerUAV(UAV):
             self.x = target_x
             self.y = target_y
             self.reached_target = True
-            if self.asset_obj:
-                self.asset_obj.take_damage(damage_per_tick=0.01)
         else:
             class AssetTarget:
                 def __init__(self, x, y):

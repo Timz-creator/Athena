@@ -4,7 +4,7 @@ class Asset:
         self.y = y
         self.team = team
         self.value = value
-        self.dam_taken = 0.0
+        self.damage_taken = 0.0
         self.alive = True
     
     def take_damage(self, damage_per_tick=0.01):
@@ -15,5 +15,5 @@ class Asset:
     
     @property
     def damage_percentage(self):
-        return min(100, (self.damage_take / self.value) * 100)
-        
+        return min(100, (self.damage_taken / self.value) * 100)
+

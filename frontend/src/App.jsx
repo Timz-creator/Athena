@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Sidebar from "./components/Sidebar";
 import Map from "./components/Map";
 import Results from "./components/Results";
@@ -20,8 +20,10 @@ function App() {
 
   const [results, setResults] = useState(null);
   const [setupStep, setSetupStep] = useState(0);
+  const [isRunning, setIsRunning] = useState(false);
   const [toast, setToast] = useState(null);
   const [toastColor, setToastColor] = useState("#00aaff");
+  const wsRef = useRef(null);
 
   const [scenario, setScenario] = useState({
     blueBase: null,
@@ -56,68 +58,72 @@ function App() {
   };
 
   const handleExecute = () => {
-    if (setupStep < 4) return;
+    if (setupStep < 4 || isRunning) return;
 
-    const bounds = buildCoordinateSystem(scenario);
+    let bounds, worldScenario;
+    try {
+      bounds = buildCoordinateSystem(scenario);
+      worldScenario = {
+        blueBase: lngLatToWorld(scenario.blueBase.lng, scenario.blueBase.lat, bounds),
+        redBase: lngLatToWorld(scenario.redBase.lng, scenario.redBase.lat, bounds),
+        blueAsset: lngLatToWorld(scenario.blueAsset.lng, scenario.blueAsset.lat, bounds),
+        redAsset: lngLatToWorld(scenario.redAsset.lng, scenario.redAsset.lat, bounds),
+      };
+    } catch (e) {
+      setToast(`Setup error: ${e.message}`);
+      setToastColor("#ff3333");
+      return;
+    }
 
-    const worldScenario = {
-      blueBase: lngLatToWorld(
-        scenario.blueBase.lng,
-        scenario.blueBase.lat,
-        bounds,
-      ),
-      redBase: lngLatToWorld(
-        scenario.redBase.lng,
-        scenario.redBase.lat,
-        bounds,
-      ),
-      blueAsset: lngLatToWorld(
-        scenario.blueAsset.lng,
-        scenario.blueAsset.lat,
-        bounds,
-      ),
-      redAsset: lngLatToWorld(
-        scenario.redAsset.lng,
-        scenario.redAsset.lat,
-        bounds,
-      ),
-    };
+    if (wsRef.current) {
+      wsRef.current.onclose = null;
+      wsRef.current.close();
+    }
 
-    const ws = new WebSocket(
-      "wss://athena-production-4518.up.railway.app/scenario/stream",
-    );
+    setIsRunning(true);
+
+    let ws;
+    try {
+      ws = new WebSocket("wss://athena-production-4518.up.railway.app/scenario/stream");
+    } catch (e) {
+      setIsRunning(false);
+      setToast(`WebSocket error: ${e.message}`);
+      setToastColor("#ff3333");
+      return;
+    }
+    wsRef.current = ws;
 
     ws.onopen = () => {
-      ws.send(
-        JSON.stringify({
-          ...params,
-          scenario: worldScenario,
-          width: 200,
-          height: 200,
-        }),
-      );
+      ws.send(JSON.stringify({ ...params, scenario: worldScenario, width: 200, height: 200 }));
     };
 
     ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.done) {
-        setResults(data);
-      } else {
-        // Convert agent positions back to lat/lng for map rendering
-        const agentsWithLngLat = data.agents.map((agent) => ({
-          ...agent,
-          lng: worldToLngLat(agent.x, agent.y, bounds).lng,
-          lat: worldToLngLat(agent.x, agent.y, bounds).lat,
-        }));
-        setResults((prev) => ({
-          ...prev,
-          agents: agentsWithLngLat,
-          time: data.time,
-        }));
+      try {
+        const data = JSON.parse(event.data);
+        if (data.done) {
+          setIsRunning(false);
+          setResults(data);
+        } else {
+          const agentsWithLngLat = data.agents.map((agent) => ({
+            ...agent,
+            lng: worldToLngLat(agent.x, agent.y, bounds).lng,
+            lat: worldToLngLat(agent.x, agent.y, bounds).lat,
+          }));
+          setResults((prev) => ({ ...prev, agents: agentsWithLngLat, time: data.time }));
+        }
+      } catch (e) {
+        setToast(`Message error: ${e.message}`);
+        setToastColor("#ff3333");
       }
     };
 
-    ws.onerror = (error) => console.error("WebSocket error:", error);
+    ws.onerror = () => {
+      setIsRunning(false);
+      setToast("Connection failed — is the server running?");
+      setToastColor("#ff3333");
+    };
+
+    ws.onclose = () => setIsRunning(false);
   };
   return (
     <div className="flex h-screen w-screen bg-[#080d14] overflow-hidden">
@@ -127,6 +133,7 @@ function App() {
         onExecute={handleExecute}
         setupStep={setupStep}
         scenarioReady={setupStep >= 4}
+        isRunning={isRunning}
       >
         <SetupIndicator currentStep={setupStep} />
       </Sidebar>

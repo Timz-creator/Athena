@@ -64,10 +64,26 @@ function App() {
     try {
       bounds = buildCoordinateSystem(scenario);
       worldScenario = {
-        blueBase: lngLatToWorld(scenario.blueBase.lng, scenario.blueBase.lat, bounds),
-        redBase: lngLatToWorld(scenario.redBase.lng, scenario.redBase.lat, bounds),
-        blueAsset: lngLatToWorld(scenario.blueAsset.lng, scenario.blueAsset.lat, bounds),
-        redAsset: lngLatToWorld(scenario.redAsset.lng, scenario.redAsset.lat, bounds),
+        blueBase: lngLatToWorld(
+          scenario.blueBase.lng,
+          scenario.blueBase.lat,
+          bounds,
+        ),
+        redBase: lngLatToWorld(
+          scenario.redBase.lng,
+          scenario.redBase.lat,
+          bounds,
+        ),
+        blueAsset: lngLatToWorld(
+          scenario.blueAsset.lng,
+          scenario.blueAsset.lat,
+          bounds,
+        ),
+        redAsset: lngLatToWorld(
+          scenario.redAsset.lng,
+          scenario.redAsset.lat,
+          bounds,
+        ),
       };
     } catch (e) {
       setToast(`Setup error: ${e.message}`);
@@ -84,7 +100,9 @@ function App() {
 
     let ws;
     try {
-      ws = new WebSocket("wss://athena-production-4518.up.railway.app/scenario/stream");
+      ws = new WebSocket(
+        "wss://athena-production-4518.up.railway.app/scenario/stream",
+      );
     } catch (e) {
       setIsRunning(false);
       setToast(`WebSocket error: ${e.message}`);
@@ -94,12 +112,20 @@ function App() {
     wsRef.current = ws;
 
     ws.onopen = () => {
-      ws.send(JSON.stringify({ ...params, scenario: worldScenario, width: 200, height: 200 }));
+      ws.send(
+        JSON.stringify({
+          ...params,
+          scenario: worldScenario,
+          width: 200,
+          height: 200,
+        }),
+      );
     };
 
     ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
+        console.log(data);
         if (data.done) {
           setIsRunning(false);
           setResults(data);
@@ -109,7 +135,11 @@ function App() {
             lng: worldToLngLat(agent.x, agent.y, bounds).lng,
             lat: worldToLngLat(agent.x, agent.y, bounds).lat,
           }));
-          setResults((prev) => ({ ...prev, agents: agentsWithLngLat, time: data.time }));
+          setResults((prev) => ({
+            ...prev,
+            agents: agentsWithLngLat,
+            time: data.time,
+          }));
         }
       } catch (e) {
         setToast(`Message error: ${e.message}`);

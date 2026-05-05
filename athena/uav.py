@@ -10,7 +10,8 @@ class UAV(Agent):
             team=team,
             detection_range=50,
             engagement_range=30,
-            kill_probability=0.15
+            kill_probability=0.15,
+            fov=360
         )
         self.altitude = 100
         self.fuel = 100.0

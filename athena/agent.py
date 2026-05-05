@@ -1,7 +1,8 @@
+from ast import FormattedValue
 import numpy as np
 
 class Agent:
-    def __init__(self, x, y, speed, heading, team, detection_range, engagement_range, kill_probability):
+    def __init__(self, x, y, speed, heading, team, detection_range, engagement_range, kill_probability, fov=360):
         self.x = x
         self.y = y
         self.speed = speed
@@ -11,6 +12,7 @@ class Agent:
         self.detection_range = detection_range
         self.engagement_range = engagement_range
         self.kill_probability = kill_probability
+        self.fov = fov
     
     def update(self, dt, width, height):
         self.x += self.speed * np.cos(self.heading) * dt
@@ -23,8 +25,18 @@ class Agent:
         for agent in agents:
             if agent.team != self.team and agent.alive:
                 distance = np.sqrt((agent.x - self.x)**2 + (agent.y - self.y)**2)
+
                 if distance <= self.detection_range:
-                    detected.append(agent)
+                    if self.fov >= 360:
+                        detected.append(agent)
+                    else:
+                        angle_to_target = np.arctan2(agent.y - self.y, agent.x - self.x)
+                        angle_diff = abs(np.arctan2(np.sin(angle_to_target - self.heading),
+                        np.cos(angle_to_target - self.heading)))
+
+                        half_fov = np.radians(self.fov / 2)
+                        if angle_diff <= half_fov:
+                            detected.append(agent)
         return detected
     
     def move_towards(self, target, dt, width, height):

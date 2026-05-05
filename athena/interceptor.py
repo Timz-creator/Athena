@@ -6,6 +6,7 @@ class InterceptorUAV(UAV):
         super().__init__(x=x, y=y, team=team)
         self.friendly_asset = friendly_asset
         self.role = "interceptor"
+        self.fov = 120
 
     def act(self, agents, dt, width, height):
         if not self.alive or self.fuel <= 0:

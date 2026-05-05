@@ -8,6 +8,7 @@ class AttackerUAV(UAV):
         self.asset_obj = asset_obj
         self.role = "attacker"
         self.reached_target = False
+        self.fov = 80
 
     def update(self, dt, width, height):
         if self.reached_target:

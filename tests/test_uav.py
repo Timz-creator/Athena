@@ -9,14 +9,22 @@ def test_uav_has_correct_defaults():
     assert uav.kill_probability == 0.15
     assert uav.altitude == 100
     assert uav.fuel == 100.0
+    assert uav.fov == 360
 
 def test_uav_detect():
     blue = UAV(x=0, y=0, team="blue")
-    red = UAV(x=50, y=0, team="red")
+    red = UAV(x=30, y=0, team="red")  # within range and directly ahead
     detected = blue.detect([red])
     assert len(detected) == 1
     assert detected[0].team == "red"
-    
+
+def test_uav_detect_outside_fov():
+    blue = UAV(x=0, y=0, team="blue")
+    blue.fov = 80  # narrow cone like AttackerUAV
+    blue.heading = 0  # facing right
+    red = UAV(x=-30, y=0, team="red")  # directly behind blue
+    detected = blue.detect([red])
+    assert len(detected) == 0  # should not detect enemy behind it
 
 def test_agent_move_towards():
     blue = UAV(x=0, y=0, team="blue")

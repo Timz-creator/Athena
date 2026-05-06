@@ -72,6 +72,8 @@ async def stream_scenario(websocket: WebSocket):
     )
     
     for _ in range(steps):
+
+        shared_enemies = runner.comms.share_detections(runner.world.agents)
         for agent in runner.world.agents:
             if agent.alive:
                 agent.act(runner.world.agents, runner.world.dt, runner.world.width, runner.world.height)

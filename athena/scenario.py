@@ -4,6 +4,7 @@ from athena.uav import UAV
 from athena.attacker import AttackerUAV
 from athena.interceptor import InterceptorUAV
 from athena.asset import Asset
+from athena.comms import CommsModel
 import numpy as np
 
 class ScenarioRunner:
@@ -13,6 +14,7 @@ class ScenarioRunner:
                  attacker_ratio=0.5):
         self.world = World(width=width, height=height)
         self.attacker_ratio = attacker_ratio
+        self.comms = CommsModel(comms_range=1000)
 
         self.blue_asset_obj = Asset(
             x=blue_asset["x"] if blue_asset else width/2,
@@ -69,9 +71,11 @@ class ScenarioRunner:
     
     def run(self, steps):
         for _ in range(steps):
+            shared_enemies = self.comms.share_detections(self.world.agents)
+
             for agent in self.world.agents:
                 if agent.alive:
-                    agent.act(self.world.agents, self.world.dt, self.world.width, self.world.height)
+                    agent.act(shared_enemies.get(id(agent), []), self.world.dt, self.world.width, self.world.height)
             self.world.step()
     
     def get_results(self):

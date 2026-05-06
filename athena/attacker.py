@@ -10,6 +10,12 @@ class AttackerUAV(UAV):
         self.reached_target = False
         self.fov = 80
 
+        dx = target_asset["x"] - x
+        dy = target_asset["y"] - y
+        base_heading = np.arctan2(dy, dx)
+        variation = np.random.uniform(-np.radians(30), np.radians(30))
+        self.heading = base_heading + variation
+
     def update(self, dt, width, height):
         if self.reached_target:
             return

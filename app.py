@@ -57,6 +57,7 @@ async def stream_scenario(websocket: WebSocket):
     
     scenario = data.get("scenario", {})
     n_agents = data.get("n_agents_per_team", 3)
+    n_jammers = data.get("n_jammers", 0)
     steps = data.get("steps", 200)
     attacker_ratio = data.get("attacker_ratio", 0.5)
     
@@ -68,7 +69,8 @@ async def stream_scenario(websocket: WebSocket):
         red_base=scenario.get("redBase"),
         blue_asset=scenario.get("blueAsset"),
         red_asset=scenario.get("redAsset"),
-        attacker_ratio=attacker_ratio
+        attacker_ratio=attacker_ratio,
+        n_jammers=n_jammers
     )
     
     for _ in range(steps):

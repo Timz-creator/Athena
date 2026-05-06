@@ -22,6 +22,7 @@ function Sidebar({ onExecute, params, setParams, children, scenarioReady, isRunn
         {[
           { label: "UAVs Per Team", key: "n_agents_per_team", min: 1, max: 20 },
           { label: "Steps", key: "steps", min: 100, max: 1000 },
+          { label: "Jammers Per Team", key: "n_jammers", min: 0, max: 5 },
         ].map(({ label, key, min, max }) => (
           <div key={key} className="space-y-2">
             <div className="flex justify-between text-[10px] uppercase tracking-tighter">

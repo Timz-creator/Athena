@@ -16,6 +16,7 @@ function App() {
     n_agents_per_team: 3,
     steps: 200,
     attacker_ratio: 0.5,
+    n_jammers: 0,
   });
 
   const [results, setResults] = useState(null);

@@ -3,6 +3,7 @@ from athena.agent import Agent
 from athena.uav import UAV
 from athena.attacker import AttackerUAV
 from athena.interceptor import InterceptorUAV
+from athena.jammer import JammerUAV
 from athena.asset import Asset
 from athena.comms import CommsModel
 import numpy as np
@@ -11,10 +12,11 @@ class ScenarioRunner:
     def __init__(self, width, height, n_agents_per_team, 
                  blue_base=None, red_base=None,
                  blue_asset=None, red_asset=None,
-                 attacker_ratio=0.5):
+                 attacker_ratio=0.5, n_jammers=0):
         self.world = World(width=width, height=height)
         self.attacker_ratio = attacker_ratio
         self.comms = CommsModel(comms_range=1000)
+        self.n_jammers = n_jammers
 
         self.blue_asset_obj = Asset(
             x=blue_asset["x"] if blue_asset else width/2,
@@ -68,6 +70,25 @@ class ScenarioRunner:
 
             self.world.add_agent(blue)
             self.world.add_agent(red)
+
+        for _ in range(self.n_jammers):
+            blue_x = (blue_base["x"] if blue_base else np.random.uniform(0, self.world.width)) + np.random.uniform(-offset, offset)
+            blue_y = (blue_base["y"] if blue_base else np.random.uniform(0, self.world.height)) + np.random.uniform(-offset, offset)
+            red_x = (red_base["x"] if red_base else np.random.uniform(0, self.world.width)) + np.random.uniform(-offset, offset)
+            red_y = (red_base["y"] if red_base else np.random.uniform(0, self.world.height)) + np.random.uniform(-offset, offset)
+
+            blue_jammer = JammerUAV(
+                x=blue_x, y=blue_y, team="blue",
+                target_asset=red_asset or {"x": self.world.width/2, "y": self.world.height/2}
+            )
+            red_jammer = JammerUAV(
+                x=red_x, y=red_y, team="red",
+                target_asset=blue_asset or {"x": self.world.width/2, "y": self.world.height/2}
+            )
+
+            self.world.add_agent(blue_jammer)
+            self.world.add_agent(red_jammer)
+        
     
     def run(self, steps):
         for _ in range(steps):

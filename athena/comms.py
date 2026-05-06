@@ -45,6 +45,21 @@ class CommsModel:
             ]
             for agent in alive_agents
         }
+    
+    def _is_jammed(self, agent, enemies):
+        """
+        Checks if an agent is jammed by any enemy in the list.
+        """
+        for enemy in enemies:
+            if enemy.team != agent.team and enemy.alive:
+                if getattr(enemy, 'role', None) == 'jammer':
+                    distance = np.sqrt(
+                        (enemy.x - agent.x) ** 2 +
+                        (enemy.y - agent.y) ** 2)
+                    if distance <= enemy.jamming_radius:
+                        return True
+        return False
+        
 
     
 

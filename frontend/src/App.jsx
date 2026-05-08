@@ -20,6 +20,7 @@ function App() {
   });
 
   const [results, setResults] = useState(null);
+  const [assetStatus, setAssetStatus] = useState(null);
   const [setupStep, setSetupStep] = useState(0);
   const [resetKey, setResetKey] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
@@ -132,6 +133,7 @@ function App() {
           setIsRunning(false);
           setResults(data);
         } else {
+          setAssetStatus(data.assets);
           const agentsWithLngLat = data.agents.map((agent) => ({
             ...agent,
             lng: worldToLngLat(agent.x, agent.y, bounds).lng,
@@ -173,6 +175,7 @@ function App() {
       redAsset: null,
     });
     setResults(null);
+    setAssetStatus(null);
     setResetKey((prev) => prev + 1);
   };
 
@@ -201,6 +204,7 @@ function App() {
             onMapClick={handleMapClick}
             onReset={handleReset}
             resetKey={resetKey}
+            assetStatus={assetStatus}
           />
         </div>
         <Results results={results} />

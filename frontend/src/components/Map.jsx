@@ -12,6 +12,67 @@ const MARKER_CONFIG = {
 };
 
 function createMarkerEl(config) {
+  if (config.shape === "asset") {
+    const wrapper = document.createElement("div");
+    wrapper.style.cssText = `
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    `;
+
+    const icon = document.createElement("div");
+    icon.style.cssText = `
+      width: 32px;
+      height: 32px;
+      border: 2px solid ${config.color};
+      background: ${config.color}22;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: JetBrains Mono, monospace;
+      font-size: 12px;
+      font-weight: bold;
+      color: ${config.color};
+      box-shadow: 0 0 12px ${config.color}66;
+      clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+    `;
+    icon.innerHTML = config.label;
+
+    const damageBarContainer = document.createElement("div");
+    damageBarContainer.className = "damage-bar-container";
+    damageBarContainer.style.cssText = `
+      width: 40px;
+      height: 4px;
+      background: #1a1a1a;
+      border: 1px solid ${config.color};
+    `;
+
+    const damageBar = document.createElement("div");
+    damageBar.className = "damage-bar";
+    damageBar.style.cssText = `
+      width: 100%;
+      height: 100%;
+      background: ${config.color};
+    `;
+    damageBarContainer.appendChild(damageBar);
+
+    const damageLabel = document.createElement("div");
+    damageLabel.className = "damage-label";
+    damageLabel.style.cssText = `
+      font-size: 8px;
+      font-family: JetBrains Mono, monospace;
+      color: ${config.color};
+    `;
+    damageLabel.textContent = "£0M";
+
+    wrapper.appendChild(icon);
+    wrapper.appendChild(damageBarContainer);
+    wrapper.appendChild(damageLabel);
+
+    return wrapper;
+  }
+
   const el = document.createElement("div");
   el.style.cssText = `
     width: 32px;
@@ -32,7 +93,16 @@ function createMarkerEl(config) {
   return el;
 }
 
-function Map({ agents, worldSize, scenario, setupStep, onMapClick, onReset, resetKey }) {
+function Map({
+  agents,
+  worldSize,
+  scenario,
+  setupStep,
+  onMapClick,
+  onReset,
+  resetKey,
+  assetStatus,
+}) {
   const mapContainer = useRef(null);
   const map = useRef(null);
   const markers = useRef({});
@@ -147,6 +217,30 @@ function Map({ agents, worldSize, scenario, setupStep, onMapClick, onReset, rese
     if (!map.current) return;
     clearScenarioMarkers();
   }, [resetKey]);
+
+  useEffect(() => {
+    if (!assetStatus) return;
+
+    const updateAssetMarker = (markerKey, status, teamColor) => {
+      const marker = markers.current[markerKey];
+      if (!marker || !status) return;
+
+      const element = marker.getElement();
+      if (!element) return;
+
+      const damageBar = element.querySelector(".damage-bar");
+      const damageLabel = element.querySelector(".damage-label");
+      if (!damageBar || !damageLabel) return;
+
+      const healthPercentage = Math.max(0, 100 - status.damage_percentage);
+      damageBar.style.width = `${healthPercentage}%`;
+      damageBar.style.background = status.damage_percentage > 50 ? "#ff3333" : teamColor;
+      damageLabel.textContent = `£${(status.damage_taken / 1_000_000).toFixed(1)}M`;
+    };
+
+    updateAssetMarker("blueAsset", assetStatus.blue, "#00aaff");
+    updateAssetMarker("redAsset", assetStatus.red, "#ff3333");
+  }, [assetStatus]);
 
   // Update UAV positions
   useEffect(() => {

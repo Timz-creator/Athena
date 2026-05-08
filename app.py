@@ -29,7 +29,19 @@ def run_scenario(request: ScenarioRequest):
         n_agents_per_team=request.n_agents_per_team
     )
     runner.run(steps=request.steps)
-    return runner.get_results()
+    results = runner.get_results()
+    results["agents"] = [
+        {
+            "x": agent.x,
+            "y": agent.y,
+            "team": agent.team,
+            "alive": agent.alive,
+            "heading": agent.heading,
+            "role": agent.role
+        }
+        for agent in runner.world.agents
+    ]
+    return results
 
 class MonteCarloRequest(BaseModel):
     width: StrictInt = Field(gt=0, le=1000)
@@ -72,6 +84,16 @@ async def stream_scenario(websocket: WebSocket):
         attacker_ratio=attacker_ratio,
         n_jammers=n_jammers
     )
+
+    def serialize_agent(agent):
+        return {
+            "x": agent.x,
+            "y": agent.y,
+            "team": agent.team,
+            "alive": agent.alive,
+            "heading": agent.heading,
+            "role": agent.role
+        }
     
     for _ in range(steps):
 
@@ -84,13 +106,7 @@ async def stream_scenario(websocket: WebSocket):
         await websocket.send_json({
             "time": runner.world.time,
             "agents": [
-                {
-                    "x": agent.x,
-                    "y": agent.y,
-                    "team": agent.team,
-                    "alive": agent.alive,
-                    "heading": agent.heading
-                }
+                serialize_agent(agent)
                 for agent in runner.world.agents
             ],
             "assets": {
@@ -108,7 +124,9 @@ async def stream_scenario(websocket: WebSocket):
         })
         
         await asyncio.sleep(0.05)
-    
-    await websocket.send_json({"done": True, **runner.get_results()})
+
+    final_results = runner.get_results()
+    final_results["agents"] = [serialize_agent(agent) for agent in runner.world.agents]
+    await websocket.send_json({"done": True, **final_results})
     await websocket.close()
 

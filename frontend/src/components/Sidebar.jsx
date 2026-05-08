@@ -1,4 +1,13 @@
-function Sidebar({ onExecute, params, setParams, children, scenarioReady, isRunning }) {
+function Sidebar({
+  onExecute,
+  onReset,
+  params,
+  setParams,
+  children,
+  scenarioReady,
+  isRunning,
+  setupStep,
+}) {
   return (
     <aside className="flex flex-col items-center py-4 w-[280px] h-screen fixed left-0 top-0 z-40 bg-[#0e0e0e] border-r border-[#1a1a1a]">
       {/* Brand Header */}
@@ -70,8 +79,16 @@ function Sidebar({ onExecute, params, setParams, children, scenarioReady, isRunn
         </div>
       </div>
 
-      {/* Execute Button */}
+      {/* Reset + Execute Buttons */}
       <div className="w-full px-6 pb-6">
+        {setupStep > 0 && (
+          <button
+            onClick={onReset}
+            className="w-full mb-3 py-4 font-black text-xs tracking-[0.2em] uppercase border border-[#ff3333] text-[#ff3333] hover:bg-[#ff3333] hover:text-black transition-colors"
+          >
+            RESET SCENARIO
+          </button>
+        )}
         <button
           onClick={onExecute}
           disabled={!scenarioReady || isRunning}

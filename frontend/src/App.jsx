@@ -21,6 +21,7 @@ function App() {
 
   const [results, setResults] = useState(null);
   const [setupStep, setSetupStep] = useState(0);
+  const [resetKey, setResetKey] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [toast, setToast] = useState(null);
   const [toastColor, setToastColor] = useState("#00aaff");
@@ -156,12 +157,32 @@ function App() {
 
     ws.onclose = () => setIsRunning(false);
   };
+
+  const handleReset = () => {
+    if (wsRef.current) {
+      wsRef.current.onclose = null;
+      wsRef.current.close();
+      wsRef.current = null;
+    }
+    setIsRunning(false);
+    setSetupStep(0);
+    setScenario({
+      blueBase: null,
+      redBase: null,
+      blueAsset: null,
+      redAsset: null,
+    });
+    setResults(null);
+    setResetKey((prev) => prev + 1);
+  };
+
   return (
     <div className="flex h-screen w-screen bg-[#080d14] overflow-hidden">
       <Sidebar
         params={params}
         setParams={setParams}
         onExecute={handleExecute}
+        onReset={handleReset}
         setupStep={setupStep}
         scenarioReady={setupStep >= 4}
         isRunning={isRunning}
@@ -178,6 +199,8 @@ function App() {
             scenario={scenario}
             setupStep={setupStep}
             onMapClick={handleMapClick}
+            onReset={handleReset}
+            resetKey={resetKey}
           />
         </div>
         <Results results={results} />

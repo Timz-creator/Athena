@@ -32,10 +32,17 @@ function createMarkerEl(config) {
   return el;
 }
 
-function Map({ agents, worldSize, scenario, setupStep, onMapClick }) {
+function Map({ agents, worldSize, scenario, setupStep, onMapClick, onReset, resetKey }) {
   const mapContainer = useRef(null);
   const map = useRef(null);
   const markers = useRef({});
+
+  const clearScenarioMarkers = () => {
+    Object.values(markers.current).forEach((marker) => {
+      if (marker) marker.remove();
+    });
+    markers.current = {};
+  };
 
   useEffect(() => {
     if (map.current) return;
@@ -106,6 +113,7 @@ function Map({ agents, worldSize, scenario, setupStep, onMapClick }) {
     map.current.getCanvas().style.cursor = "crosshair";
 
     return () => {
+      clearScenarioMarkers();
       map.current.remove();
       map.current = null;
     };
@@ -135,10 +143,23 @@ function Map({ agents, worldSize, scenario, setupStep, onMapClick }) {
     });
   }, [scenario]);
 
+  useEffect(() => {
+    if (!map.current) return;
+    clearScenarioMarkers();
+  }, [resetKey]);
+
   // Update UAV positions
   useEffect(() => {
-    if (!map.current || !agents || agents.length === 0) return;
+    if (!map.current) return;
     if (!map.current.getSource("uavs")) return;
+
+    if (!agents || agents.length === 0) {
+      map.current.getSource("uavs").setData({
+        type: "FeatureCollection",
+        features: [],
+      });
+      return;
+    }
 
     const features = agents
       .filter((a) => a.alive)

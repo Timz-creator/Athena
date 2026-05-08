@@ -151,7 +151,8 @@ function Map({ agents, worldSize, scenario, setupStep, onMapClick }) {
         properties: {
           team: agent.team,
           role: agent.role,
-          heading_degrees: (agent.heading * 180) / Math.PI,
+          // Convert simulation heading (0=east, CCW+) to Mapbox icon heading (0=north, CW+).
+          heading_degrees: 90 - (agent.heading * 180) / Math.PI,
         },
       }));
 

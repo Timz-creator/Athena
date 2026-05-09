@@ -1,13 +1,27 @@
 function Sidebar({
   onExecute,
   onReset,
+  onMonteCarlo,
   params,
   setParams,
   children,
   scenarioReady,
   isRunning,
   setupStep,
+  monteCarloResults,
+  isRunningMonteCarlo,
 }) {
+  const blueWins = monteCarloResults
+    ? monteCarloResults.filter((r) => r.winner === "blue").length
+    : 0;
+  const redWins = monteCarloResults
+    ? monteCarloResults.filter((r) => r.winner === "red").length
+    : 0;
+  const draws = monteCarloResults
+    ? monteCarloResults.filter((r) => r.winner === "draw").length
+    : 0;
+  const total = monteCarloResults ? monteCarloResults.length : 0;
+
   return (
     <aside className="flex flex-col items-center py-4 w-[280px] h-screen fixed left-0 top-0 z-40 bg-[#0e0e0e] border-r border-[#1a1a1a]">
       {/* Brand Header */}
@@ -102,6 +116,30 @@ function Sidebar({
         >
           {isRunning ? "RUNNING..." : scenarioReady ? "EXECUTE" : "COMPLETE SETUP"}
         </button>
+        <button
+          onClick={onMonteCarlo}
+          disabled={setupStep < 4 || isRunningMonteCarlo}
+          className="border border-[#9b59b6] text-[#9b59b6] hover:bg-[#9b59b6] hover:text-black transition-colors w-full py-3 text-xs tracking-[0.2em] uppercase font-black mt-3 disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          {isRunningMonteCarlo ? "RUNNING..." : "MONTE CARLO"}
+        </button>
+        {monteCarloResults && total > 0 && (
+          <div
+            className="mt-3 text-[10px] uppercase tracking-widest space-y-1"
+            style={{ fontFamily: "JetBrains Mono" }}
+          >
+            <div className="text-[#00aaff]">
+              BLUE {Math.round((blueWins / total) * 100)}%
+            </div>
+            <div className="text-[#ff3333]">
+              RED {Math.round((redWins / total) * 100)}%
+            </div>
+            <div className="text-[#bbc9cf]">
+              DRAW {Math.round((draws / total) * 100)}%
+            </div>
+            <div className="text-[#bbc9cf]">{total} RUNS</div>
+          </div>
+        )}
       </div>
     </aside>
   );

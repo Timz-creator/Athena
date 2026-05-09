@@ -4,6 +4,7 @@ from athena.monte_carlo import MonteCarlo
 from athena.doe import DesignOfExperiments
 from pydantic import BaseModel, Field, StrictInt
 from fastapi.middleware.cors import CORSMiddleware
+from typing import Optional
 import asyncio
 import json
 
@@ -49,6 +50,12 @@ class MonteCarloRequest(BaseModel):
     n_agents_per_team: StrictInt = Field(gt=0, le=20)
     steps: StrictInt = Field(gt=0, le=1000)
     n_runs: StrictInt = Field(gt=0, le=1000)
+    blue_base: Optional[dict] = None
+    red_base: Optional[dict] = None
+    blue_asset: Optional[dict] = None
+    red_asset: Optional[dict] = None
+    attacker_ratio: float = 0.5
+    n_jammers: int = 0
 
 @app.post("/monte-carlo/run")
 def run_monteCarlo(request: MonteCarloRequest):
@@ -57,6 +64,12 @@ def run_monteCarlo(request: MonteCarloRequest):
         height=request.height,
         n_agents_per_team=request.n_agents_per_team,
         n_runs=request.n_runs,
+        blue_base=request.blue_base,
+        red_base=request.red_base,
+        blue_asset=request.blue_asset,
+        red_asset=request.red_asset,
+        attacker_ratio=request.attacker_ratio,
+        n_jammers=request.n_jammers,
     )
     results = mc.run(steps=request.steps)
     return results

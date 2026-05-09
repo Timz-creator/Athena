@@ -24,6 +24,8 @@ function App() {
   const [setupStep, setSetupStep] = useState(0);
   const [resetKey, setResetKey] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
+  const [monteCarloResults, setMonteCarloResults] = useState(null);
+  const [isRunningMonteCarlo, setIsRunningMonteCarlo] = useState(false);
   const [toast, setToast] = useState(null);
   const [toastColor, setToastColor] = useState("#00aaff");
   const wsRef = useRef(null);
@@ -175,8 +177,73 @@ function App() {
       redAsset: null,
     });
     setResults(null);
+    setMonteCarloResults(null);
     setAssetStatus(null);
     setResetKey((prev) => prev + 1);
+  };
+
+  const handleMonteCarlo = async () => {
+    if (setupStep < 4 || isRunningMonteCarlo) return;
+
+    setIsRunningMonteCarlo(true);
+    try {
+      const bounds = buildCoordinateSystem(scenario);
+      const worldScenario = {
+        blueBase: lngLatToWorld(
+          scenario.blueBase.lng,
+          scenario.blueBase.lat,
+          bounds,
+        ),
+        redBase: lngLatToWorld(
+          scenario.redBase.lng,
+          scenario.redBase.lat,
+          bounds,
+        ),
+        blueAsset: lngLatToWorld(
+          scenario.blueAsset.lng,
+          scenario.blueAsset.lat,
+          bounds,
+        ),
+        redAsset: lngLatToWorld(
+          scenario.redAsset.lng,
+          scenario.redAsset.lat,
+          bounds,
+        ),
+      };
+
+      const response = await fetch(
+        "https://athena-production-4518.up.railway.app/monte-carlo/run",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            n_agents_per_team: params.n_agents_per_team,
+            steps: params.steps,
+            n_runs: 50,
+            width: 200,
+            height: 200,
+            attacker_ratio: params.attacker_ratio,
+            n_jammers: params.n_jammers,
+            blue_base: worldScenario.blueBase,
+            red_base: worldScenario.redBase,
+            blue_asset: worldScenario.blueAsset,
+            red_asset: worldScenario.redAsset,
+          }),
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error(`Monte Carlo request failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setMonteCarloResults(data);
+    } catch (e) {
+      setToast(`Monte Carlo error: ${e.message}`);
+      setToastColor("#ff3333");
+    } finally {
+      setIsRunningMonteCarlo(false);
+    }
   };
 
   return (
@@ -186,9 +253,12 @@ function App() {
         setParams={setParams}
         onExecute={handleExecute}
         onReset={handleReset}
+        onMonteCarlo={handleMonteCarlo}
         setupStep={setupStep}
         scenarioReady={setupStep >= 4}
         isRunning={isRunning}
+        monteCarloResults={monteCarloResults}
+        isRunningMonteCarlo={isRunningMonteCarlo}
       >
         <SetupIndicator currentStep={setupStep} />
       </Sidebar>

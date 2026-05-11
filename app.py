@@ -76,7 +76,7 @@ def run_monteCarlo(request: MonteCarloRequest):
         seed=request.seed,
     )
     results = mc.run(steps=request.steps)
-    return results
+    return {"seed": mc.base_seed, "results": results}
 
 @app.websocket("/scenario/stream")
 async def stream_scenario(websocket: WebSocket):

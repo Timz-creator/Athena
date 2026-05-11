@@ -13,16 +13,18 @@ function Sidebar({
   monteCarloResults,
   isRunningMonteCarlo,
 }) {
-  const blueWins = monteCarloResults
-    ? monteCarloResults.filter((r) => r.winner === "blue").length
-    : 0;
-  const redWins = monteCarloResults
-    ? monteCarloResults.filter((r) => r.winner === "red").length
-    : 0;
-  const draws = monteCarloResults
-    ? monteCarloResults.filter((r) => r.winner === "draw").length
-    : 0;
-  const total = monteCarloResults ? monteCarloResults.length : 0;
+  const monteCarloRuns = Array.isArray(monteCarloResults)
+    ? monteCarloResults
+    : monteCarloResults?.results ?? [];
+  const monteCarloSeed =
+    monteCarloResults && !Array.isArray(monteCarloResults)
+      ? monteCarloResults.seed
+      : null;
+
+  const blueWins = monteCarloRuns.filter((r) => r.winner === "blue").length;
+  const redWins = monteCarloRuns.filter((r) => r.winner === "red").length;
+  const draws = monteCarloRuns.filter((r) => r.winner === "draw").length;
+  const total = monteCarloRuns.length;
 
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
 
@@ -171,6 +173,12 @@ function Sidebar({
             className="mt-3 text-[10px] uppercase tracking-widest space-y-1"
             style={{ fontFamily: "JetBrains Mono" }}
           >
+            {monteCarloSeed != null ? (
+              <div className="text-[#bbc9cf] opacity-80">
+                SEED{" "}
+                <span className="text-white font-mono">{monteCarloSeed}</span>
+              </div>
+            ) : null}
             <div className="text-[#00aaff]">
               BLUE {Math.round((blueWins / total) * 100)}%
             </div>

@@ -55,6 +55,17 @@ def test_monte_carlo_runs():
     results = mc.run(steps=200)
     assert len(results) == 10
     assert all("winner" in r for r in results)
+    assert mc.base_seed is not None
+    assert all(r.get("seed") == mc.base_seed + i for i, r in enumerate(results))
+
+
+def test_monte_carlo_explicit_seed_base():
+    mc = MonteCarlo(
+        width=200, height=200, n_agents_per_team=3, n_runs=4, seed=1000
+    )
+    results = mc.run(steps=20)
+    assert mc.base_seed == 1000
+    assert [r["seed"] for r in results] == [1000, 1001, 1002, 1003]
 
 
 def _scenario_outcome(results):

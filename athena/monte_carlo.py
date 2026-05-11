@@ -27,11 +27,18 @@ class MonteCarlo:
         self.red_asset = red_asset
         self.attacker_ratio = attacker_ratio
         self.n_jammers = n_jammers
+        self.base_seed = None
 
     def run(self, steps):
+        if self.seed is not None:
+            base = self.seed
+        else:
+            base = int(np.random.randint(0, 2**31))
+        self.base_seed = base
+
         results = []
         for i in range(self.n_runs):
-            run_seed = self.seed + i if self.seed is not None else None
+            run_seed = base + i
             scenario = ScenarioRunner(
                 width=self.width,
                 height=self.height,

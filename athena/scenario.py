@@ -12,7 +12,12 @@ class ScenarioRunner:
     def __init__(self, width, height, n_agents_per_team, 
                  blue_base=None, red_base=None,
                  blue_asset=None, red_asset=None,
-                 attacker_ratio=0.5, n_jammers=0):
+                 attacker_ratio=0.5, n_jammers=0, seed=None):
+        if seed is None:
+            seed = int(np.random.randint(0, 2**31))
+        self.seed = seed
+        np.random.seed(seed)
+
         self.world = World(width=width, height=height)
         self.attacker_ratio = attacker_ratio
         self.comms = CommsModel(comms_range=1000)
@@ -117,6 +122,7 @@ class ScenarioRunner:
             winner = "draw"
 
         return {
+            "seed": self.seed,
             "winner": winner,
             "blue_survived": blue_survived,
             "red_survived": red_survived,

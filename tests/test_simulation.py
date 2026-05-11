@@ -55,6 +55,47 @@ def test_monte_carlo_runs():
     results = mc.run(steps=200)
     assert len(results) == 10
     assert all("winner" in r for r in results)
+
+
+def _scenario_outcome(results):
+    positions = tuple(
+        (a["x"], a["y"], a["heading"], a["alive"]) for a in results["agents"]
+    )
+    return (results["winner"], positions)
+
+
+def test_deterministic_seeding():
+    steps = 50
+    r1 = ScenarioRunner(
+        width=200, height=200, n_agents_per_team=3, seed=42
+    )
+    r1.run(steps=steps)
+    out1 = _scenario_outcome(r1.get_results())
+
+    r2 = ScenarioRunner(
+        width=200, height=200, n_agents_per_team=3, seed=42
+    )
+    r2.run(steps=steps)
+    out2 = _scenario_outcome(r2.get_results())
+
+    assert out1 == out2
+
+
+def test_different_seeds_differ():
+    steps = 80
+    r42 = ScenarioRunner(
+        width=200, height=200, n_agents_per_team=3, seed=42
+    )
+    r42.run(steps=steps)
+    out42 = _scenario_outcome(r42.get_results())
+
+    r43 = ScenarioRunner(
+        width=200, height=200, n_agents_per_team=3, seed=43
+    )
+    r43.run(steps=steps)
+    out43 = _scenario_outcome(r43.get_results())
+
+    assert out42 != out43
     
 def test_doe():
     grid = [

@@ -1,6 +1,15 @@
 function Results({ results }) {
   const hasResults = Boolean(results);
 
+  const copySeed = async () => {
+    if (results?.seed === undefined || results?.seed === null) return;
+    try {
+      await navigator.clipboard.writeText(String(results.seed));
+    } catch {
+      /* ignore */
+    }
+  };
+
   const winnerColour =
     results?.winner === "blue"
       ? "#00aaff"
@@ -16,6 +25,29 @@ function Results({ results }) {
 
   return (
     <div className="flex items-center gap-6 px-8 py-3 border-t border-[#1a1a1a] bg-[#0e0e0e] flex-wrap">
+      <div className="flex flex-col min-w-0">
+        <span className="text-[8px] uppercase tracking-widest text-[#bbc9cf] opacity-50">
+          SEED
+        </span>
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs font-mono text-white tracking-tight truncate">
+            {hasResults && results.seed != null ? results.seed : "—"}
+          </span>
+          {hasResults && results.seed != null ? (
+            <button
+              type="button"
+              onClick={copySeed}
+              className="shrink-0 text-[10px] uppercase tracking-wider text-[#bbc9cf] opacity-70 hover:opacity-100 px-1 py-0.5 rounded border border-[#2a3540] hover:border-[#bbc9cf]"
+              title="Copy seed"
+            >
+              Copy
+            </button>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="w-px h-6 bg-[#1a1a1a]" />
+
       <div className="flex flex-col">
         <span className="text-[8px] uppercase tracking-widest text-[#bbc9cf] opacity-50">
           Winner

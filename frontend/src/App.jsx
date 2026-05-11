@@ -17,6 +17,7 @@ function App() {
     steps: 200,
     attacker_ratio: 0.5,
     n_jammers: 0,
+    seed: null,
   });
 
   const [results, setResults] = useState(null);
@@ -133,7 +134,11 @@ function App() {
         console.log(data);
         if (data.done) {
           setIsRunning(false);
-          setResults(data);
+          setResults((prev) => ({
+            ...prev,
+            ...data,
+            seed: data.seed,
+          }));
         } else {
           setAssetStatus(data.assets);
           const agentsWithLngLat = data.agents.map((agent) => ({
@@ -224,6 +229,7 @@ function App() {
             height: 200,
             attacker_ratio: params.attacker_ratio,
             n_jammers: params.n_jammers,
+            seed: params.seed,
             blue_base: worldScenario.blueBase,
             red_base: worldScenario.redBase,
             blue_asset: worldScenario.blueAsset,

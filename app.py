@@ -21,13 +21,15 @@ class ScenarioRequest(BaseModel):
     height: StrictInt = Field(gt=0, le=1000)
     n_agents_per_team: StrictInt = Field(gt=0, le=20)
     steps: StrictInt = Field(gt=0, le=1000)
+    seed: Optional[int] = None
 
 @app.post("/scenario/run")
 def run_scenario(request: ScenarioRequest):
     runner = ScenarioRunner(
         width=request.width,
         height=request.height,
-        n_agents_per_team=request.n_agents_per_team
+        n_agents_per_team=request.n_agents_per_team,
+        seed=request.seed,
     )
     runner.run(steps=request.steps)
     results = runner.get_results()
@@ -56,6 +58,7 @@ class MonteCarloRequest(BaseModel):
     red_asset: Optional[dict] = None
     attacker_ratio: float = 0.5
     n_jammers: int = 0
+    seed: Optional[int] = None
 
 @app.post("/monte-carlo/run")
 def run_monteCarlo(request: MonteCarloRequest):
@@ -70,6 +73,7 @@ def run_monteCarlo(request: MonteCarloRequest):
         red_asset=request.red_asset,
         attacker_ratio=request.attacker_ratio,
         n_jammers=request.n_jammers,
+        seed=request.seed,
     )
     results = mc.run(steps=request.steps)
     return results
@@ -85,7 +89,8 @@ async def stream_scenario(websocket: WebSocket):
     n_jammers = data.get("n_jammers", 0)
     steps = data.get("steps", 200)
     attacker_ratio = data.get("attacker_ratio", 0.5)
-    
+    seed = data.get("seed", None)
+
     runner = ScenarioRunner(
         width=200,
         height=200,
@@ -95,7 +100,8 @@ async def stream_scenario(websocket: WebSocket):
         blue_asset=scenario.get("blueAsset"),
         red_asset=scenario.get("redAsset"),
         attacker_ratio=attacker_ratio,
-        n_jammers=n_jammers
+        n_jammers=n_jammers,
+        seed=seed,
     )
 
     def serialize_agent(agent):

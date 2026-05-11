@@ -14,7 +14,9 @@ class MonteCarlo:
         red_asset=None,
         attacker_ratio=0.5,
         n_jammers=0,
+        seed=None,
     ):
+        self.seed = seed
         self.width = width
         self.height = height
         self.n_agents_per_team = n_agents_per_team
@@ -28,7 +30,8 @@ class MonteCarlo:
 
     def run(self, steps):
         results = []
-        for _ in range(self.n_runs):
+        for i in range(self.n_runs):
+            run_seed = self.seed + i if self.seed is not None else None
             scenario = ScenarioRunner(
                 width=self.width,
                 height=self.height,
@@ -39,6 +42,7 @@ class MonteCarlo:
                 red_asset=self.red_asset,
                 attacker_ratio=self.attacker_ratio,
                 n_jammers=self.n_jammers,
+                seed=run_seed,
             )
             scenario.run(steps)
             results.append(scenario.get_results())

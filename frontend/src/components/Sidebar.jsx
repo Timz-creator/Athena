@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 function Sidebar({
   onExecute,
   onReset,
@@ -21,6 +23,8 @@ function Sidebar({
     ? monteCarloResults.filter((r) => r.winner === "draw").length
     : 0;
   const total = monteCarloResults ? monteCarloResults.length : 0;
+
+  const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
 
   return (
     <aside className="flex flex-col items-center py-4 w-[280px] h-screen fixed left-0 top-0 z-40 bg-[#0e0e0e] border-r border-[#1a1a1a]">
@@ -89,6 +93,45 @@ function Sidebar({
           <div className="flex justify-between text-[8px] text-[white] opacity-40">
             <span>All Intercept</span>
             <span>All Attack</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="w-full px-6 shrink-0">
+        <button
+          type="button"
+          onClick={() => setIsAdvancedOpen((o) => !o)}
+          className="w-full flex justify-between items-center text-[10px] uppercase tracking-widest text-[#bbc9cf] opacity-50 py-2 border-t border-[#1a1a1a] hover:opacity-100 transition-all"
+        >
+          <span>ADVANCED SETTINGS</span>
+          <span className="font-mono text-[#00aaff]">
+            {isAdvancedOpen ? "−" : "+"}
+          </span>
+        </button>
+        <div
+          className={`overflow-hidden transition-all duration-300 ${
+            isAdvancedOpen ? "max-h-40" : "max-h-0"
+          }`}
+        >
+          <div className="pb-4 pt-1 space-y-2">
+            <div className="flex justify-between text-[10px] uppercase tracking-tighter">
+              <span>SEED</span>
+            </div>
+            <input
+              type="number"
+              placeholder="Random"
+              value={params.seed != null ? params.seed : ""}
+              onChange={(e) =>
+                setParams({
+                  ...params,
+                  seed: e.target.value ? parseInt(e.target.value, 10) : null,
+                })
+              }
+              className="w-full bg-[#0a0a0a] border border-[#1a1a1a] text-[#00aaff] text-[10px] font-mono px-2 py-1 focus:border-[#00aaff] focus:outline-none"
+            />
+            <p className="text-[8px] text-[#bbc9cf] opacity-40 mt-1">
+              Set a seed to reproduce exact results
+            </p>
           </div>
         </div>
       </div>

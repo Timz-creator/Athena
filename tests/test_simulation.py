@@ -36,8 +36,18 @@ def test_agent_move_towards():
     blue = Agent(x=0, y=0, speed=1, heading=0, team="blue", detection_range=10, engagement_range=20, kill_probability=0.1)
     red = Agent(x=50, y=0, speed=1, heading=0, team="red", detection_range=100, engagement_range=20, kill_probability=0.1)
     blue.move_towards(red, 1, 100, 100)
-    blue.update(1, 100, 100)
     assert np.isclose(blue.x, 1.0)
+
+def test_kinematic_turning():
+    agent = Agent(x=0, y=0, speed=1, heading=0, team="blue", detection_range=100, engagement_range=20, kill_probability=0.1)
+
+    class NorthTarget:
+        x = 0
+        y = 1
+
+    agent.move_towards(NorthTarget(), dt=0.1, width=100, height=100)
+    assert agent.heading != np.pi / 2
+    assert agent.heading > 0
 
 def test_scenario_runs():
     runner = ScenarioRunner(width=1000, height=1000, n_agents_per_team=3)

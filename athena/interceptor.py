@@ -4,6 +4,8 @@ import numpy as np
 class InterceptorUAV(UAV):
     def __init__(self, x, y, team, friendly_asset):
         super().__init__(x=x, y=y, team=team)
+        self.turn_radius = 15
+        self.max_turn_rate = self.speed / self.turn_radius
         self.friendly_asset = friendly_asset
         self.role = "interceptor"
         self.fov = 120

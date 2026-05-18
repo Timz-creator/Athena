@@ -2,7 +2,7 @@ from ast import FormattedValue
 import numpy as np
 
 class Agent:
-    def __init__(self, x, y, speed, heading, team, detection_range, engagement_range, kill_probability, fov=360):
+    def __init__(self, x, y, speed, heading, team, detection_range, engagement_range, kill_probability, fov=360, turn_radius=10):
         self.x = x
         self.y = y
         self.speed = speed
@@ -13,6 +13,8 @@ class Agent:
         self.engagement_range = engagement_range
         self.kill_probability = kill_probability
         self.fov = fov
+        self.turn_radius = turn_radius
+        self.max_turn_rate = self.speed / self.turn_radius
     
     def update(self, dt, width, height):
         self.x += self.speed * np.cos(self.heading) * dt
@@ -40,8 +42,18 @@ class Agent:
         return detected
     
     def move_towards(self, target, dt, width, height):
-        target_angle = np.arctan2((target.y - self.y), (target.x - self.x))
-        self.heading = target_angle
+        target_angle = np.arctan2(target.y - self.y, target.x - self.x)
+
+        angle_diff = np.arctan2(
+            np.sin(target_angle - self.heading),
+            np.cos(target_angle - self.heading)
+        )
+
+        max_turn = self.max_turn_rate * dt
+        turn = np.clip(angle_diff, -max_turn, max_turn)
+
+        self.heading += turn
+        self.update(dt, width, height)
 
     def engage(self, agents):
         for agent in agents:

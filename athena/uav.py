@@ -11,8 +11,10 @@ class UAV(Agent):
             detection_range=50,
             engagement_range=30,
             kill_probability=0.15,
-            fov=360
+            fov=360,
+            turn_radius=20,
         )
+        self.max_turn_rate = self.speed / self.turn_radius
         self.altitude = 100
         self.fuel = 100.0
         self.deployment_cost = 500_000

@@ -4,6 +4,8 @@ import numpy as np
 class AttackerUAV(UAV):
     def __init__(self, x, y, team, target_asset, asset_obj=None):
         super().__init__(x=x, y=y, team=team)
+        self.turn_radius = 20
+        self.max_turn_rate = self.speed / self.turn_radius
         self.target_asset = target_asset
         self.asset_obj = asset_obj
         self.role = "attacker"

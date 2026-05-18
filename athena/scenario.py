@@ -66,11 +66,13 @@ class ScenarioRunner:
             else:
                 blue = InterceptorUAV(
                     x=blue_x, y=blue_y, team="blue",
-                    friendly_asset=blue_asset or {"x": self.world.width/2, "y": self.world.height/2}
+                    friendly_asset=blue_asset or {"x": self.world.width/2, "y": self.world.height/2},
+                    friendly_base=blue_base or {"x": self.world.width/2, "y": self.world.height/2}
                 )
                 red = InterceptorUAV(
                     x=red_x, y=red_y, team="red",
-                    friendly_asset=red_asset or {"x": self.world.width/2, "y": self.world.height/2}
+                    friendly_asset=red_asset or {"x": self.world.width/2, "y": self.world.height/2},
+                    friendly_base=red_base or {"x": self.world.width/2, "y": self.world.height/2}
                 )
 
             self.world.add_agent(blue)

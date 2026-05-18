@@ -1,4 +1,5 @@
 from athena.agent import Agent
+from athena.interceptor import InterceptorUAV
 from athena.world import World
 from athena.scenario import ScenarioRunner
 from athena.monte_carlo import MonteCarlo
@@ -37,6 +38,25 @@ def test_agent_move_towards():
     red = Agent(x=50, y=0, speed=1, heading=0, team="red", detection_range=100, engagement_range=20, kill_probability=0.1)
     blue.move_towards(red, 1, 100, 100)
     assert np.isclose(blue.x, 1.0)
+
+def test_interceptor_returns_to_base():
+    interceptor = InterceptorUAV(
+        x=50, y=50, team="blue",
+        friendly_asset={"x": 100, "y": 100},
+        friendly_base={"x": 0, "y": 0},
+    )
+    base = interceptor.friendly_base
+    interceptor.heading = np.arctan2(base["y"] - interceptor.y, base["x"] - interceptor.x)
+    start_x, start_y = interceptor.x, interceptor.y
+    start_distance = np.sqrt((start_x - base["x"]) ** 2 + (start_y - base["y"]) ** 2)
+    for _ in range(20):
+        interceptor.act([], dt=0.1, width=200, height=200)
+    assert interceptor.x < start_x
+    assert interceptor.y < start_y
+    end_distance = np.sqrt(
+        (interceptor.x - base["x"]) ** 2 + (interceptor.y - base["y"]) ** 2
+    )
+    assert end_distance < start_distance
 
 def test_kinematic_turning():
     agent = Agent(x=0, y=0, speed=1, heading=0, team="blue", detection_range=100, engagement_range=20, kill_probability=0.1)

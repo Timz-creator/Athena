@@ -122,7 +122,13 @@ function Map({
       style: "mapbox://styles/mapbox/dark-v11",
       center: [0, 51.5],
       zoom: 10,
+      pitch: 50,
+      bearing: -17.6,
     });
+
+    map.current.setPitch(20);
+
+    map.current.addControl(new mapboxgl.NavigationControl(), "top-right");
 
     map.current.on("load", () => {
       map.current.addSource("uavs", {
@@ -152,6 +158,59 @@ function Map({
       const interceptorRedSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><path d="M20 5 L35 33 L20 27 L5 33 Z" fill="none" stroke="#ff3333" stroke-width="3" stroke-linejoin="round"/></svg>`;
       const jammerBlueSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><path d="M20 4 L36 34 L20 28 L4 34 Z" fill="#00aaff"/><path d="M22 14 L16 23 H21 L18 30 L26 20 H21 Z" fill="#00131d"/></svg>`;
       const jammerRedSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><path d="M20 4 L36 34 L20 28 L4 34 Z" fill="#ff3333"/><path d="M22 14 L16 23 H21 L18 30 L26 20 H21 Z" fill="#2a0000"/></svg>`;
+
+      map.current.addSource("mapbox-dem", {
+        type: "raster-dem",
+        url: "mapbox://mapbox.mapbox-terrain-dem-v1",
+        tileSize: 512,
+        maxzoom: 14,
+      });
+
+      map.current.setTerrain({
+        source: "mapbox-dem",
+        exaggeration: 1.5,
+      });
+
+      map.current.addLayer({
+        id: "sky",
+        type: "sky",
+        paint: {
+          "sky-type": "atmosphere",
+          "sky-atmosphere-sun": [0.0, 90.0],
+          "sky-atmosphere-sun-intensity": 15,
+        },
+      });
+
+      map.current.addLayer({
+        id: "3d-buildings",
+        source: "composite",
+        "source-layer": "building",
+        filter: ["==", "extrude", "true"],
+        type: "fill-extrusion",
+        minzoom: 12,
+        paint: {
+          "fill-extrusion-color": "#0d1f33",
+          "fill-extrusion-height": [
+            "interpolate",
+            ["linear"],
+            ["zoom"],
+            12,
+            0,
+            12.05,
+            ["get", "height"],
+          ],
+          "fill-extrusion-base": [
+            "interpolate",
+            ["linear"],
+            ["zoom"],
+            12,
+            0,
+            12.05,
+            ["get", "min_height"],
+          ],
+          "fill-extrusion-opacity": 0.8,
+        },
+      });
 
       Promise.all([
         registerSvgIcon("attacker-blue", attackerBlueSvg),
@@ -194,6 +253,16 @@ function Map({
     if (!map.current) return;
     map.current.getCanvas().style.cursor =
       setupStep >= 4 ? "grab" : "crosshair";
+  }, [setupStep]);
+
+  useEffect(() => {
+    if (setupStep >= 4 && map.current) {
+      map.current.easeTo({
+        pitch: 50,
+        bearing: -17.6,
+        duration: 1000,
+      });
+    }
   }, [setupStep]);
 
   // Place markers when scenario updates

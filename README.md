@@ -27,8 +27,6 @@ Hit **MONTE CARLO** to run 50 scenarios with the same geography and surface the 
 
 ## Modelling decisions
 
-These aren't arbitrary parameters — each decision is grounded in documented real-world platform characteristics.
-
 ### Sensor model — FOV-based detection cone
 
 Detection is modelled as a forward-facing cone, not an omnidirectional circle. This reflects the single forward-facing camera payload of low-cost kamikaze drones like the Shahed-136 and Ukrainian FPV platforms.

@@ -28,6 +28,80 @@ function Sidebar({
 
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
 
+  const renderForceSection = (title, color, agentsKey, ratioKey, jammersKey) => (
+    <div className="space-y-4">
+      <h2
+        className="text-[10px] font-black uppercase tracking-widest"
+        style={{ color }}
+      >
+        {title}
+      </h2>
+
+      <div className="space-y-2">
+        <div className="flex justify-between text-[10px] uppercase tracking-tighter">
+          <span>UAVs</span>
+          <span style={{ color }}>{params[agentsKey]}</span>
+        </div>
+        <input
+          type="range"
+          min={1}
+          max={20}
+          value={params[agentsKey]}
+          onChange={(e) =>
+            setParams({ ...params, [agentsKey]: parseInt(e.target.value) })
+          }
+          className="w-full bg-[#1a1a1a] appearance-none h-px"
+          style={{ accentColor: color }}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <div className="flex justify-between text-[10px] uppercase tracking-tighter">
+          <span>Attacker Ratio</span>
+          <span style={{ color }}>
+            {Math.round(params[ratioKey] * 100)}%
+          </span>
+        </div>
+        <input
+          type="range"
+          min={0}
+          max={100}
+          value={params[ratioKey] * 100}
+          onChange={(e) =>
+            setParams({
+              ...params,
+              [ratioKey]: parseInt(e.target.value) / 100,
+            })
+          }
+          className="w-full bg-[#1a1a1a] appearance-none h-px"
+          style={{ accentColor: color }}
+        />
+        <div className="flex justify-between text-[8px] text-[white] opacity-40">
+          <span>All Intercept</span>
+          <span>All Attack</span>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <div className="flex justify-between text-[10px] uppercase tracking-tighter">
+          <span>Jammers</span>
+          <span style={{ color }}>{params[jammersKey]}</span>
+        </div>
+        <input
+          type="range"
+          min={0}
+          max={5}
+          value={params[jammersKey]}
+          onChange={(e) =>
+            setParams({ ...params, [jammersKey]: parseInt(e.target.value) })
+          }
+          className="w-full bg-[#1a1a1a] appearance-none h-px"
+          style={{ accentColor: color }}
+        />
+      </div>
+    </div>
+  );
+
   return (
     <aside className="flex flex-col items-center py-4 w-[280px] h-screen fixed left-0 top-0 z-40 bg-[#0e0e0e] border-r border-[#1a1a1a]">
       {/* Brand Header */}
@@ -48,54 +122,37 @@ function Sidebar({
 
       {/* Parameters */}
       <div className="w-full px-6 py-4 space-y-6 flex-grow overflow-y-auto text-[white]">
-        {[
-          { label: "UAVs Per Team", key: "n_agents_per_team", min: 1, max: 20 },
-          { label: "Steps", key: "steps", min: 100, max: 1000 },
-          { label: "Jammers Per Team", key: "n_jammers", min: 0, max: 5 },
-        ].map(({ label, key, min, max }) => (
-          <div key={key} className="space-y-2">
-            <div className="flex justify-between text-[10px] uppercase tracking-tighter">
-              <span>{label}</span>
-              <span className="text-[#00aaff]">{params[key]}</span>
-            </div>
-            <input
-              type="range"
-              min={min}
-              max={max}
-              value={params[key]}
-              onChange={(e) =>
-                setParams({ ...params, [key]: parseInt(e.target.value) })
-              }
-              className="w-full accent-[#00aaff] bg-[#1a1a1a] appearance-none h-px"
-            />
-          </div>
-        ))}
+        {renderForceSection(
+          "Blue Force",
+          "#00aaff",
+          "blue_n_agents",
+          "blue_attacker_ratio",
+          "blue_n_jammers",
+        )}
 
-        {/* Attacker ratio */}
+        {renderForceSection(
+          "Red Force",
+          "#ff3333",
+          "red_n_agents",
+          "red_attacker_ratio",
+          "red_n_jammers",
+        )}
+
         <div className="space-y-2">
           <div className="flex justify-between text-[10px] uppercase tracking-tighter">
-            <span>Attacker Ratio</span>
-            <span className="text-[#00aaff]">
-              {Math.round(params.attacker_ratio * 100)}%
-            </span>
+            <span>Steps</span>
+            <span className="text-[#00aaff]">{params.steps}</span>
           </div>
           <input
             type="range"
-            min={0}
-            max={100}
-            value={params.attacker_ratio * 100}
+            min={100}
+            max={1000}
+            value={params.steps}
             onChange={(e) =>
-              setParams({
-                ...params,
-                attacker_ratio: parseInt(e.target.value) / 100,
-              })
+              setParams({ ...params, steps: parseInt(e.target.value) })
             }
             className="w-full accent-[#00aaff] bg-[#1a1a1a] appearance-none h-px"
           />
-          <div className="flex justify-between text-[8px] text-[white] opacity-40">
-            <span>All Intercept</span>
-            <span>All Attack</span>
-          </div>
         </div>
       </div>
 

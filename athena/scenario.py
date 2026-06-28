@@ -9,19 +9,26 @@ from athena.comms import CommsModel
 import numpy as np
 
 class ScenarioRunner:
-    def __init__(self, width, height, n_agents_per_team, 
+    def __init__(self, width, height,
+                 blue_n_agents=3, red_n_agents=3,
+                 blue_attacker_ratio=0.5, red_attacker_ratio=0.5,
+                 blue_n_jammers=0, red_n_jammers=0,
                  blue_base=None, red_base=None,
                  blue_asset=None, red_asset=None,
-                 attacker_ratio=0.5, n_jammers=0, seed=None):
+                 seed=None):
         if seed is None:
             seed = int(np.random.randint(0, 2**31))
         self.seed = seed
         np.random.seed(seed)
 
         self.world = World(width=width, height=height)
-        self.attacker_ratio = attacker_ratio
+        self.blue_n_agents = blue_n_agents
+        self.red_n_agents = red_n_agents
+        self.blue_attacker_ratio = blue_attacker_ratio
+        self.red_attacker_ratio = red_attacker_ratio
+        self.blue_n_jammers = blue_n_jammers
+        self.red_n_jammers = red_n_jammers
         self.comms = CommsModel(comms_range=1000)
-        self.n_jammers = n_jammers
 
         self.blue_asset_obj = Asset(
             x=blue_asset["x"] if blue_asset else width/2,
@@ -35,66 +42,56 @@ class ScenarioRunner:
             team="red"
         ) if red_asset else None
 
-        self._setup_agents(n_agents_per_team, blue_base, red_base, blue_asset, red_asset)
+        self._setup_agents(blue_base, red_base, blue_asset, red_asset)
     
-    def _setup_agents(self, n_agents_per_team, blue_base=None, red_base=None, blue_asset=None, red_asset=None):
-        n_attackers = max(1, int(n_agents_per_team * self.attacker_ratio))
+    def _setup_agents(self, blue_base, red_base, blue_asset, red_asset):
+        blue_n_attackers = max(1, int(self.blue_n_agents * self.blue_attacker_ratio)) if self.blue_n_agents > 0 else 0
+        red_n_attackers = max(1, int(self.red_n_agents * self.red_attacker_ratio)) if self.red_n_agents > 0 else 0
         offset = 5
 
-        for i in range(n_agents_per_team):
-            blue_x = (blue_base["x"] if blue_base else np.random.uniform(0, self.world.width)) + np.random.uniform(-offset, offset)
-            blue_y = (blue_base["y"] if blue_base else np.random.uniform(0, self.world.height)) + np.random.uniform(-offset, offset)
-            red_x = (red_base["x"] if red_base else np.random.uniform(0, self.world.width)) + np.random.uniform(-offset, offset)
-            red_y = (red_base["y"] if red_base else np.random.uniform(0, self.world.height)) + np.random.uniform(-offset, offset)
+        for i in range(self.blue_n_agents):
+            x = (blue_base["x"] if blue_base else np.random.uniform(0, self.world.width)) + np.random.uniform(-offset, offset)
+            y = (blue_base["y"] if blue_base else np.random.uniform(0, self.world.height)) + np.random.uniform(-offset, offset)
+            x = np.clip(x, 0, self.world.width)
+            y = np.clip(y, 0, self.world.height)
 
-            blue_x = np.clip(blue_x, 0, self.world.width)
-            blue_y = np.clip(blue_y, 0, self.world.height)
-            red_x = np.clip(red_x, 0, self.world.width)
-            red_y = np.clip(red_y, 0, self.world.height)
-
-            if i < n_attackers:
-                blue = AttackerUAV(
-                    x=blue_x, y=blue_y, team="blue",
-                    target_asset=red_asset or {"x": self.world.width/2, "y": self.world.height/2},
-                    asset_obj=self.red_asset_obj
-                )
-                red = AttackerUAV(
-                    x=red_x, y=red_y, team="red",
-                    target_asset=blue_asset or {"x": self.world.width/2, "y": self.world.height/2},
-                    asset_obj=self.blue_asset_obj
-                )
+            if i < blue_n_attackers:
+                agent = AttackerUAV(x=x, y=y, team="blue",
+                                    target_asset=red_asset or {"x": self.world.width/2, "y": self.world.height/2},
+                                    asset_obj=self.red_asset_obj)
             else:
-                blue = InterceptorUAV(
-                    x=blue_x, y=blue_y, team="blue",
-                    friendly_asset=blue_asset or {"x": self.world.width/2, "y": self.world.height/2},
-                    friendly_base=blue_base or {"x": self.world.width/2, "y": self.world.height/2}
-                )
-                red = InterceptorUAV(
-                    x=red_x, y=red_y, team="red",
-                    friendly_asset=red_asset or {"x": self.world.width/2, "y": self.world.height/2},
-                    friendly_base=red_base or {"x": self.world.width/2, "y": self.world.height/2}
-                )
+                agent = InterceptorUAV(x=x, y=y, team="blue",
+                                       friendly_asset=blue_asset or {"x": self.world.width/2, "y": self.world.height/2},
+                                       friendly_base=blue_base or {"x": self.world.width/2, "y": self.world.height/2})
+            self.world.add_agent(agent)
 
-            self.world.add_agent(blue)
-            self.world.add_agent(red)
+        for _ in range(self.blue_n_jammers):
+            x = (blue_base["x"] if blue_base else np.random.uniform(0, self.world.width)) + np.random.uniform(-offset, offset)
+            y = (blue_base["y"] if blue_base else np.random.uniform(0, self.world.height)) + np.random.uniform(-offset, offset)
+            self.world.add_agent(JammerUAV(x=x, y=y, team="blue",
+                                           target_asset=red_asset or {"x": self.world.width/2, "y": self.world.height/2}))
 
-        for _ in range(self.n_jammers):
-            blue_x = (blue_base["x"] if blue_base else np.random.uniform(0, self.world.width)) + np.random.uniform(-offset, offset)
-            blue_y = (blue_base["y"] if blue_base else np.random.uniform(0, self.world.height)) + np.random.uniform(-offset, offset)
-            red_x = (red_base["x"] if red_base else np.random.uniform(0, self.world.width)) + np.random.uniform(-offset, offset)
-            red_y = (red_base["y"] if red_base else np.random.uniform(0, self.world.height)) + np.random.uniform(-offset, offset)
+        for i in range(self.red_n_agents):
+            x = (red_base["x"] if red_base else np.random.uniform(0, self.world.width)) + np.random.uniform(-offset, offset)
+            y = (red_base["y"] if red_base else np.random.uniform(0, self.world.height)) + np.random.uniform(-offset, offset)
+            x = np.clip(x, 0, self.world.width)
+            y = np.clip(y, 0, self.world.height)
 
-            blue_jammer = JammerUAV(
-                x=blue_x, y=blue_y, team="blue",
-                target_asset=red_asset or {"x": self.world.width/2, "y": self.world.height/2}
-            )
-            red_jammer = JammerUAV(
-                x=red_x, y=red_y, team="red",
-                target_asset=blue_asset or {"x": self.world.width/2, "y": self.world.height/2}
-            )
+            if i < red_n_attackers:
+                agent = AttackerUAV(x=x, y=y, team="red",
+                                    target_asset=blue_asset or {"x": self.world.width/2, "y": self.world.height/2},
+                                    asset_obj=self.blue_asset_obj)
+            else:
+                agent = InterceptorUAV(x=x, y=y, team="red",
+                                       friendly_asset=red_asset or {"x": self.world.width/2, "y": self.world.height/2},
+                                       friendly_base=red_base or {"x": self.world.width/2, "y": self.world.height/2})
+            self.world.add_agent(agent)
 
-            self.world.add_agent(blue_jammer)
-            self.world.add_agent(red_jammer)
+        for _ in range(self.red_n_jammers):
+            x = (red_base["x"] if red_base else np.random.uniform(0, self.world.width)) + np.random.uniform(-offset, offset)
+            y = (red_base["y"] if red_base else np.random.uniform(0, self.world.height)) + np.random.uniform(-offset, offset)
+            self.world.add_agent(JammerUAV(x=x, y=y, team="red",
+                                           target_asset=blue_asset or {"x": self.world.width/2, "y": self.world.height/2}))
         
     
     def run(self, steps):
@@ -157,4 +154,3 @@ class ScenarioRunner:
                 for agent in self.world.agents
             ]
         }
-

@@ -19,7 +19,12 @@ app.add_middleware(
 class ScenarioRequest(BaseModel):
     width: StrictInt = Field(gt=0, le=1000)
     height: StrictInt = Field(gt=0, le=1000)
-    n_agents_per_team: StrictInt = Field(gt=0, le=20)
+    blue_n_agents: StrictInt = Field(gt=0, le=20)
+    red_n_agents: StrictInt = Field(gt=0, le=20)
+    blue_attacker_ratio: float = Field(ge=0, le=1, default=0.5)
+    red_attacker_ratio: float = Field(ge=0, le=1, default=0.5)
+    blue_n_jammers: StrictInt = Field(ge=0, le=5, default=0)
+    red_n_jammers: StrictInt = Field(ge=0, le=5, default=0)
     steps: StrictInt = Field(gt=0, le=1000)
     seed: Optional[int] = None
 
@@ -28,7 +33,12 @@ def run_scenario(request: ScenarioRequest):
     runner = ScenarioRunner(
         width=request.width,
         height=request.height,
-        n_agents_per_team=request.n_agents_per_team,
+        blue_n_agents=request.blue_n_agents,
+        red_n_agents=request.red_n_agents,
+        blue_attacker_ratio=request.blue_attacker_ratio,
+        red_attacker_ratio=request.red_attacker_ratio,
+        blue_n_jammers=request.blue_n_jammers,
+        red_n_jammers=request.red_n_jammers,
         seed=request.seed,
     )
     runner.run(steps=request.steps)
@@ -49,15 +59,18 @@ def run_scenario(request: ScenarioRequest):
 class MonteCarloRequest(BaseModel):
     width: StrictInt = Field(gt=0, le=1000)
     height: StrictInt = Field(gt=0, le=1000)
-    n_agents_per_team: StrictInt = Field(gt=0, le=20)
+    blue_n_agents: StrictInt = Field(gt=0, le=20)
+    red_n_agents: StrictInt = Field(gt=0, le=20)
+    blue_attacker_ratio: float = Field(ge=0, le=1, default=0.5)
+    red_attacker_ratio: float = Field(ge=0, le=1, default=0.5)
+    blue_n_jammers: StrictInt = Field(ge=0, le=5, default=0)
+    red_n_jammers: StrictInt = Field(ge=0, le=5, default=0)
     steps: StrictInt = Field(gt=0, le=1000)
     n_runs: StrictInt = Field(gt=0, le=1000)
     blue_base: Optional[dict] = None
     red_base: Optional[dict] = None
     blue_asset: Optional[dict] = None
     red_asset: Optional[dict] = None
-    attacker_ratio: float = 0.5
-    n_jammers: int = 0
     seed: Optional[int] = None
 
 @app.post("/monte-carlo/run")
@@ -65,14 +78,17 @@ def run_monteCarlo(request: MonteCarloRequest):
     mc = MonteCarlo(
         width=request.width,
         height=request.height,
-        n_agents_per_team=request.n_agents_per_team,
         n_runs=request.n_runs,
+        blue_n_agents=request.blue_n_agents,
+        red_n_agents=request.red_n_agents,
+        blue_attacker_ratio=request.blue_attacker_ratio,
+        red_attacker_ratio=request.red_attacker_ratio,
+        blue_n_jammers=request.blue_n_jammers,
+        red_n_jammers=request.red_n_jammers,
         blue_base=request.blue_base,
         red_base=request.red_base,
         blue_asset=request.blue_asset,
         red_asset=request.red_asset,
-        attacker_ratio=request.attacker_ratio,
-        n_jammers=request.n_jammers,
         seed=request.seed,
     )
     results = mc.run(steps=request.steps)
@@ -85,22 +101,28 @@ async def stream_scenario(websocket: WebSocket):
     data = await websocket.receive_json()
     
     scenario = data.get("scenario", {})
-    n_agents = data.get("n_agents_per_team", 3)
-    n_jammers = data.get("n_jammers", 0)
+    blue_n_agents = data.get("blue_n_agents", 3)
+    red_n_agents = data.get("red_n_agents", 3)
+    blue_attacker_ratio = data.get("blue_attacker_ratio", 0.5)
+    red_attacker_ratio = data.get("red_attacker_ratio", 0.5)
+    blue_n_jammers = data.get("blue_n_jammers", 0)
+    red_n_jammers = data.get("red_n_jammers", 0)
     steps = data.get("steps", 200)
-    attacker_ratio = data.get("attacker_ratio", 0.5)
     seed = data.get("seed", None)
 
     runner = ScenarioRunner(
         width=200,
         height=200,
-        n_agents_per_team=n_agents,
+        blue_n_agents=blue_n_agents,
+        red_n_agents=red_n_agents,
+        blue_attacker_ratio=blue_attacker_ratio,
+        red_attacker_ratio=red_attacker_ratio,
+        blue_n_jammers=blue_n_jammers,
+        red_n_jammers=red_n_jammers,
         blue_base=scenario.get("blueBase"),
         red_base=scenario.get("redBase"),
         blue_asset=scenario.get("blueAsset"),
         red_asset=scenario.get("redAsset"),
-        attacker_ratio=attacker_ratio,
-        n_jammers=n_jammers,
         seed=seed,
     )
 

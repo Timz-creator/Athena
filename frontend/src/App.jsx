@@ -13,10 +13,13 @@ import {
 
 function App() {
   const [params, setParams] = useState({
-    n_agents_per_team: 3,
+    blue_n_agents: 3,
+    red_n_agents: 3,
+    blue_attacker_ratio: 0.5,
+    red_attacker_ratio: 0.5,
+    blue_n_jammers: 0,
+    red_n_jammers: 0,
     steps: 200,
-    attacker_ratio: 0.5,
-    n_jammers: 0,
     seed: null,
   });
 
@@ -222,13 +225,16 @@ function App() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            n_agents_per_team: params.n_agents_per_team,
+            blue_n_agents: params.blue_n_agents,
+            red_n_agents: params.red_n_agents,
+            blue_attacker_ratio: params.blue_attacker_ratio,
+            red_attacker_ratio: params.red_attacker_ratio,
+            blue_n_jammers: params.blue_n_jammers,
+            red_n_jammers: params.red_n_jammers,
             steps: params.steps,
             n_runs: 50,
             width: 200,
             height: 200,
-            attacker_ratio: params.attacker_ratio,
-            n_jammers: params.n_jammers,
             seed: params.seed,
             blue_base: worldScenario.blueBase,
             red_base: worldScenario.redBase,

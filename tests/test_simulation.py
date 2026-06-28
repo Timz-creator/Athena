@@ -70,7 +70,7 @@ def test_kinematic_turning():
     assert agent.heading > 0
 
 def test_scenario_runs():
-    runner = ScenarioRunner(width=1000, height=1000, n_agents_per_team=3)
+    runner = ScenarioRunner(width=1000, height=1000, blue_n_agents=3, red_n_agents=3)
     runner.run(steps=10)
     assert runner.world.time > 0
 
@@ -81,7 +81,7 @@ def test_agent_engage():
     assert blue.alive == False
 
 def test_monte_carlo_runs():
-    mc = MonteCarlo(width=200, height=200, n_agents_per_team=3, n_runs=10)
+    mc = MonteCarlo(width=200, height=200, blue_n_agents=3, red_n_agents=3, n_runs=10)
     results = mc.run(steps=200)
     assert len(results) == 10
     assert all("winner" in r for r in results)
@@ -91,7 +91,7 @@ def test_monte_carlo_runs():
 
 def test_monte_carlo_explicit_seed_base():
     mc = MonteCarlo(
-        width=200, height=200, n_agents_per_team=3, n_runs=4, seed=1000
+        width=200, height=200, blue_n_agents=3, red_n_agents=3, n_runs=4, seed=1000
     )
     results = mc.run(steps=20)
     assert mc.base_seed == 1000
@@ -108,13 +108,13 @@ def _scenario_outcome(results):
 def test_deterministic_seeding():
     steps = 50
     r1 = ScenarioRunner(
-        width=200, height=200, n_agents_per_team=3, seed=42
+        width=200, height=200, blue_n_agents=3, red_n_agents=3, seed=42
     )
     r1.run(steps=steps)
     out1 = _scenario_outcome(r1.get_results())
 
     r2 = ScenarioRunner(
-        width=200, height=200, n_agents_per_team=3, seed=42
+        width=200, height=200, blue_n_agents=3, red_n_agents=3, seed=42
     )
     r2.run(steps=steps)
     out2 = _scenario_outcome(r2.get_results())
@@ -125,23 +125,35 @@ def test_deterministic_seeding():
 def test_different_seeds_differ():
     steps = 80
     r42 = ScenarioRunner(
-        width=200, height=200, n_agents_per_team=3, seed=42
+        width=200, height=200, blue_n_agents=3, red_n_agents=3, seed=42
     )
     r42.run(steps=steps)
     out42 = _scenario_outcome(r42.get_results())
 
     r43 = ScenarioRunner(
-        width=200, height=200, n_agents_per_team=3, seed=43
+        width=200, height=200, blue_n_agents=3, red_n_agents=3, seed=43
     )
     r43.run(steps=steps)
     out43 = _scenario_outcome(r43.get_results())
 
     assert out42 != out43
+
+
+def test_asymmetric_force_composition():
+    runner = ScenarioRunner(width=200, height=200, blue_n_agents=15, red_n_agents=3, seed=42)
+    assert len(runner.world.agents) == 18
+    blue_count = sum(1 for a in runner.world.agents if a.team == "blue")
+    red_count = sum(1 for a in runner.world.agents if a.team == "red")
+    assert blue_count == 15
+    assert red_count == 3
+    assert blue_count > red_count
+    runner.run(steps=10)
+    assert len(runner.world.agents) == 18
     
 def test_doe():
     grid = [
-    {"detection_range": 50, "engagement_range": 20, "speed": 1, "n_agents_per_team": 3, "width": 200, "height": 200, "n_runs": 10, "steps": 100},
-    {"detection_range": 100, "engagement_range": 20, "speed": 1, "n_agents_per_team": 3, "width": 200, "height": 200, "n_runs": 10, "steps": 100},
+    {"detection_range": 50, "engagement_range": 20, "speed": 1, "blue_n_agents": 3, "red_n_agents": 3, "width": 200, "height": 200, "n_runs": 10, "steps": 100},
+    {"detection_range": 100, "engagement_range": 20, "speed": 1, "blue_n_agents": 3, "red_n_agents": 3, "width": 200, "height": 200, "n_runs": 10, "steps": 100},
 ]
     doe = DesignOfExperiments(parameter_grid=grid)
     results = doe.run()

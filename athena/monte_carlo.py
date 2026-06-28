@@ -6,27 +6,33 @@ class MonteCarlo:
         self,
         width,
         height,
-        n_agents_per_team,
         n_runs,
+        blue_n_agents=3,
+        red_n_agents=3,
+        blue_attacker_ratio=0.5,
+        red_attacker_ratio=0.5,
+        blue_n_jammers=0,
+        red_n_jammers=0,
         blue_base=None,
         red_base=None,
         blue_asset=None,
         red_asset=None,
-        attacker_ratio=0.5,
-        n_jammers=0,
         seed=None,
     ):
         self.seed = seed
         self.width = width
         self.height = height
-        self.n_agents_per_team = n_agents_per_team
         self.n_runs = n_runs
+        self.blue_n_agents = blue_n_agents
+        self.red_n_agents = red_n_agents
+        self.blue_attacker_ratio = blue_attacker_ratio
+        self.red_attacker_ratio = red_attacker_ratio
+        self.blue_n_jammers = blue_n_jammers
+        self.red_n_jammers = red_n_jammers
         self.blue_base = blue_base
         self.red_base = red_base
         self.blue_asset = blue_asset
         self.red_asset = red_asset
-        self.attacker_ratio = attacker_ratio
-        self.n_jammers = n_jammers
         self.base_seed = None
 
     def run(self, steps):
@@ -42,21 +48,18 @@ class MonteCarlo:
             scenario = ScenarioRunner(
                 width=self.width,
                 height=self.height,
-                n_agents_per_team=self.n_agents_per_team,
+                blue_n_agents=self.blue_n_agents,
+                red_n_agents=self.red_n_agents,
+                blue_attacker_ratio=self.blue_attacker_ratio,
+                red_attacker_ratio=self.red_attacker_ratio,
+                blue_n_jammers=self.blue_n_jammers,
+                red_n_jammers=self.red_n_jammers,
                 blue_base=self.blue_base,
                 red_base=self.red_base,
                 blue_asset=self.blue_asset,
                 red_asset=self.red_asset,
-                attacker_ratio=self.attacker_ratio,
-                n_jammers=self.n_jammers,
                 seed=run_seed,
             )
             scenario.run(steps)
             results.append(scenario.get_results())
         return results
-            
-
-
-
-
-

@@ -8,7 +8,8 @@ Athena simulates UAV swarm attack and defence on real-world geography, tracking 
 
 ---
 
-Image 18-05-2026 at 5.27 pm.jpg
+<img width="2935" height="1598" alt="Image 18-05-2026 at 5 27 pm" src="https://github.com/user-attachments/assets/7d63e2f3-61a6-4334-8ddd-fc607a855af7" />
+
 
 ---
 
@@ -25,8 +26,6 @@ Hit **MONTE CARLO** to run 50 scenarios with the same geography and surface the 
 ---
 
 ## Modelling decisions
-
-These aren't arbitrary parameters — each decision is grounded in documented real-world platform characteristics.
 
 ### Sensor model — FOV-based detection cone
 
